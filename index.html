@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Water System</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        :root { --gold: #d4af37; --bg: #0a0a0a; --card: #1a1a1a; --text: #ffffff; }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); display: flex; justify-content: center; padding: 20px; margin: 0; min-height: 100vh; }
+        .container { width: 100%; max-width: 400px; background: var(--card); padding: 20px; border-radius: 12px; border: 1px solid #333; position: relative; height: fit-content; }
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        #menu-btn { background: #222; border: 1px solid #444; padding: 5px 10px; border-radius: 5px; cursor: pointer; font-size: 1.2rem; }
+        h1 { font-size: 1.1rem; color: var(--gold); margin: 0; letter-spacing: 1px; }
+        .duty-card { background: #222; padding: 20px; border-radius: 10px; text-align: center; border: 1px solid var(--gold); margin-bottom: 15px; }
+        .officer-name { font-size: 1.8rem; font-weight: bold; display: block; margin: 5px 0; color: #fff; }
+        .btn-group { display: flex; gap: 10px; margin-top: 15px; }
+        .btn-gold { background: var(--gold); color: #000; border: none; padding: 12px; width: 100%; border-radius: 5px; font-weight: bold; cursor: pointer; }
+        .btn-skip { background: #333; color: #fff; border: 1px solid #444; padding: 12px; width: 100%; border-radius: 5px; font-weight: bold; cursor: pointer; }
+        ul { list-style: none; padding: 0; margin: 0; }
+        li { display: flex; justify-content: space-between; padding: 10px; border-bottom: 1px solid #222; font-size: 0.9rem; }
+        .active-row { color: var(--gold); font-weight: bold; background: rgba(212, 175, 55, 0.05); }
+        
+        .overlay { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 90%; max-width: 380px; height: 85vh; background: var(--card); border-radius: 12px; z-index: 100; padding: 20px; box-sizing: border-box; overflow-y: auto; border: 1px solid #333; box-shadow: 0 0 20px rgba(0,0,0,0.8); }
+        .tabs { display: flex; border-bottom: 1px solid #333; margin-bottom: 15px; }
+        .tab { flex: 1; text-align: center; padding: 10px; cursor: pointer; color: #666; font-size: 0.75rem; font-weight: bold; }
+        .tab.active { color: var(--gold); border-bottom: 2px solid var(--gold); }
+        
+        #movie-fab { position: fixed; bottom: 20px; right: 20px; background: var(--gold); color: #000; width: 55px; height: 55px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; cursor: pointer; border: none; box-shadow: 0 4px 10px rgba(0,0,0,0.5); z-index: 90; }
+        .movie-item { display: flex; flex-direction: column; padding: 12px; background: #222; margin-bottom: 8px; border-radius: 8px; border-left: 3px solid var(--gold); }
+        .movie-header { display: flex; justify-content: space-between; align-items: center; width: 100%; }
+        .movie-link { color: var(--gold); text-decoration: none; font-weight: bold; font-size: 0.8rem; border: 1px solid var(--gold); padding: 4px 8px; border-radius: 4px; }
+        .movie-date { font-size: 0.65rem; color: #666; margin-top: 5px; }
+        
+        .admin-card { background: #222; padding: 12px; margin-bottom: 12px; border-radius: 8px; border: 1px solid #333; }
+        .admin-btn-row { display: flex; justify-content: space-between; margin-top: 8px; }
+        .admin-btn-row button { width: 48%; padding: 6px; border-radius: 4px; font-weight: bold; cursor: pointer; border: none; font-size: 0.7rem; }
+        input { width: 100%; padding: 8px; margin: 5px 0; background: #333; color: #fff; border: 1px solid #444; border-radius: 4px; box-sizing: border-box; font-size: 0.8rem; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <button id="menu-btn" onclick="openSystemOverlay()">📜</button>
+        <h1>WATER SYSTEM</h1>
+    </div>
+
+    <div class="duty-card">
+        <p style="font-size: 0.7rem; color: #888; margin: 0;">ON DUTY</p>
+        <span id="officer-name" class="officer-name">...</span>
+        <div class="btn-group">
+            <button onclick="handleAction('SKIPPED')" class="btn-skip">SKIP</button>
+            <button onclick="handleAction('REFILLED')" class="btn-gold">REFILLED</button>
+        </div>
+    </div>
+
+    <ul id="queue-list"></ul>
+
+    <div id="system-overlay" class="overlay">
+        <div class="tabs">
+            <div id="tab-log" class="tab active" onclick="showSystemTab('log')">HISTORY</div>
+            <div id="tab-admin" class="tab" onclick="showSystemTab('admin')">ADMIN</div>
+        </div>
+        <div id="content-log"></div>
+        <div id="content-admin" style="display:none;"></div>
+        <button onclick="closeOverlays()" class="btn-gold" style="background:#333; color:#fff; margin-top:20px;">CLOSE</button>
+    </div>
+
+    <div id="movie-overlay" class="overlay">
+        <h3 style="color:var(--gold); font-size:0.9rem; text-align:center; margin-bottom:20px;">🎬 MOVIE COLLECTION</h3>
+        <div id="content-movies"></div>
+        <button onclick="closeOverlays()" class="btn-gold" style="background:#333; color:#fff; margin-top:20px;">CLOSE</button>
+    </div>
+</div>
+
+<button id="movie-fab" onclick="openMovieOverlay()">🎬</button>
+
+<script>
+    const supabaseUrl = 'https://jlqqqriobwcxmoapmhze.supabase.co';
+    const supabaseKey = 'sb_publishable_ODRaIqpK-ZwJnsIqdsPkxA_n8ip5SEa';
+    const _supabase = supabase.createClient(supabaseUrl, supabaseKey);
+
+    let allRoommates = [];
+    let dbAdminPin = "";
+
+    async function init() {
+        await loadData();
+        const { data } = await _supabase.from('system_settings').select('setting_value').eq('setting_name', 'admin_pin');
+        if (data && data.length > 0) dbAdminPin = data[0].setting_value;
+    }
+
+    async function loadData() {
+        const { data } = await _supabase.from('Roommate').select('*').order('queue_order', { ascending: true });
+        if (data) { allRoommates = data; renderUI(); }
+    }
+
+    function renderUI() {
+        const current = allRoommates.find(r => r.is_current);
+        document.getElementById('officer-name').innerText = current ? current.name : "None";
+        document.getElementById('queue-list').innerHTML = allRoommates.map(r => `
+            <li class="${r.is_current ? 'active-row' : ''}">
+                <span>${r.name}</span>
+                <span style="font-size:0.7rem; opacity:0.6">${r.is_current ? 'ACTIVE' : 'WAITING'}</span>
+            </li>
+        `).join('');
+    }
+
+    async function handleAction(actionType) {
+        const current = allRoommates.find(r => r.is_current);
+        if (!current) return;
+        const pin = prompt(`Enter PIN for ${current.name}:`);
+        if (pin !== current.password) return alert("Invalid PIN");
+        const next = allRoommates[(allRoommates.indexOf(current) + 1) % allRoommates.length];
+        await _supabase.from('History').insert([{ name: current.name, action: actionType }]);
+        await _supabase.from('Roommate').update({ is_current: false }).eq('id', current.id);
+        await _supabase.from('Roommate').update({ is_current: true }).eq('id', next.id);
+        loadData();
+    }
+
+    window.openSystemOverlay = () => { document.getElementById('system-overlay').style.display = 'block'; showSystemTab('log'); };
+    window.openMovieOverlay = () => { document.getElementById('movie-overlay').style.display = 'block'; renderMovies(); };
+    window.closeOverlays = () => { document.getElementById('system-overlay').style.display = 'none'; document.getElementById('movie-overlay').style.display = 'none'; };
+
+    window.showSystemTab = async (type) => {
+        if (type === 'admin') {
+            const pin = prompt("Admin PIN:");
+            if (pin !== dbAdminPin) return alert("Denied");
+            renderAdmin();
+        } else { renderLog(); }
+        document.getElementById('content-log').style.display = type === 'log' ? 'block' : 'none';
+        document.getElementById('content-admin').style.display = type === 'admin' ? 'block' : 'none';
+        document.getElementById('tab-log').className = type === 'log' ? 'tab active' : 'tab';
+        document.getElementById('tab-admin').className = type === 'admin' ? 'tab active' : 'tab';
+    };
+
+    async function renderLog() {
+        const { data } = await _supabase.from('History').select('*').order('created_at', { ascending: false }).limit(10);
+        document.getElementById('content-log').innerHTML = data ? data.map(h => `
+            <div class="log-item" style="padding:10px 0; border-bottom:1px solid #222;">
+                <div style="display:flex; justify-content:space-between; font-size:0.85rem;">
+                    <span>${h.name}</span><span style="color:var(--gold)">${h.action}</span>
+                </div>
+            </div>`).join('') : "No logs.";
+    }
+
+    async function renderMovies() {
+        const { data } = await _supabase.from('Movies').select('*').order('created_at', { ascending: false });
+        document.getElementById('content-movies').innerHTML = data && data.length > 0 ? data.map(m => {
+            const date = new Date(m.created_at).toLocaleDateString([], { month: 'short', day: 'numeric', year: 'numeric' });
+            return `
+                <div class="movie-item">
+                    <div class="movie-header">
+                        <span>🎬 ${m.title}</span>
+                        <a href="${m.url}" target="_blank" class="movie-link">WATCH</a>
+                    </div>
+                    <div class="movie-date">Added on: ${date}</div>
+                </div>`;
+        }).join('') : "<p style='text-align:center; color:#666;'>No movies found.</p>";
+    }
+
+    async function renderAdmin() {
+        const container = document.getElementById('content-admin');
+        const { data: movies } = await _supabase.from('Movies').select('*').order('created_at', { ascending: false });
+        
+        let html = `<h3 style="color:var(--gold); font-size:0.8rem;">ROOMMATES</h3>`;
+        html += allRoommates.map(r => `
+            <div class="admin-card">
+                <input type="text" id="edit-n-${r.id}" value="${r.name}" placeholder="Name">
+                <input type="text" id="edit-t-${r.id}" value="${r.telegram_id || ''}" placeholder="Telegram ID">
+                <input type="text" id="edit-p-${r.id}" value="${r.password}" placeholder="PIN">
+                <div class="admin-btn-row">
+                    <button onclick="saveChanges(${r.id})" style="background:var(--gold); color:#000;">SAVE</button>
+                    <button onclick="deleteMember(${r.id})" style="background:#800; color:#fff;">DEL</button>
+                </div>
+            </div>`).join('');
+        
+        html += `<div class="admin-card" style="border:1px dashed var(--gold)">
+            <input type="text" id="new-name" placeholder="New Name">
+            <input type="text" id="new-tele" placeholder="Telegram ID">
+            <input type="text" id="new-pass" placeholder="New PIN">
+            <button onclick="addMember()" class="btn-gold">ADD ROOMMATE</button>
+        </div>`;
+
+        html += `<h3 style="color:var(--gold); font-size:0.8rem; margin-top:20px;">MOVIES</h3>`;
+        html += `<div class="admin-card"><input type="text" id="m-title" placeholder="Name"><input type="text" id="m-url" placeholder="URL"><button onclick="addMovie()" class="btn-gold">ADD MOVIE</button></div>`;
+        html += movies ? movies.map(m => `<div class="admin-card" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:5px;"><span style="font-size:0.75rem;">${m.title}</span><button onclick="deleteMovie(${m.id})" style="background:#800; color:#fff; border:none; padding:4px 8px; border-radius:4px; font-size:0.6rem;">DEL</button></div>`).join('') : "";
+        
+        container.innerHTML = html;
+    }
+
+    window.saveChanges = async (id) => {
+        const name = document.getElementById(`edit-n-${id}`).value;
+        const telegram_id = document.getElementById(`edit-t-${id}`).value;
+        const password = document.getElementById(`edit-p-${id}`).value;
+        await _supabase.from('Roommate').update({ name, telegram_id, password }).eq('id', id);
+        alert("Updated"); loadData(); renderAdmin();
+    };
+
+    window.addMember = async () => {
+        const name = document.getElementById('new-name').value;
+        const telegram_id = document.getElementById('new-tele').value;
+        const password = document.getElementById('new-pass').value;
+        if (!name || !password) return alert("Fill Name and PIN");
+        await _supabase.from('Roommate').insert([{ name, telegram_id, password, queue_order: allRoommates.length + 1, is_current: false }]);
+        alert("Added"); loadData(); renderAdmin();
+    };
+
+    window.deleteMember = async (id) => {
+        if(confirm("Delete member?")) { await _supabase.from('Roommate').delete().eq('id', id); loadData(); renderAdmin(); }
+    };
+
+    window.addMovie = async () => {
+        const title = document.getElementById('m-title').value;
+        const url = document.getElementById('m-url').value;
+        if (!title || !url) return alert("Empty fields");
+        await _supabase.from('Movies').insert([{ title, url }]);
+        renderAdmin();
+    };
+
+    window.deleteMovie = async (id) => {
+        if (confirm("Delete movie?")) { await _supabase.from('Movies').delete().eq('id', id); renderAdmin(); }
+    };
+
+    init();
+</script>
+</body>
+</html>
