@@ -21,6 +21,7 @@
         li { display: flex; justify-content: space-between; padding: 10px; border-bottom: 1px solid #222; font-size: 0.9rem; }
         .active-row { color: var(--gold); font-weight: bold; background: rgba(212, 175, 55, 0.05); }
         
+        /* Overlays */
         .overlay { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 90%; max-width: 380px; height: 85vh; background: var(--card); border-radius: 12px; z-index: 100; padding: 20px; box-sizing: border-box; overflow-y: auto; border: 1px solid #333; box-shadow: 0 0 20px rgba(0,0,0,0.8); }
         .tabs { display: flex; border-bottom: 1px solid #333; margin-bottom: 15px; }
         .tab { flex: 1; text-align: center; padding: 10px; cursor: pointer; color: #666; font-size: 0.75rem; font-weight: bold; }
@@ -30,12 +31,13 @@
         .fab-container { position: fixed; bottom: 20px; right: 20px; display: flex; flex-direction: column; gap: 10px; z-index: 90; }
         .fab { background: var(--gold); color: #000; width: 55px; height: 55px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; cursor: pointer; border: none; box-shadow: 0 4px 10px rgba(0,0,0,0.5); }
         
-        /* Link Items */
-        .link-item { display: flex; flex-direction: column; padding: 12px; background: #222; margin-bottom: 8px; border-radius: 8px; border-left: 3px solid var(--gold); }
-        .link-header { display: flex; justify-content: space-between; align-items: center; width: 100%; }
-        .link-url { color: var(--gold); text-decoration: none; font-weight: bold; font-size: 0.8rem; border: 1px solid var(--gold); padding: 4px 8px; border-radius: 4px; }
-        .link-date { font-size: 0.65rem; color: #666; margin-top: 5px; }
+        /* List Items (History, Movies, Links) */
+        .item-card { display: flex; flex-direction: column; padding: 12px; background: #222; margin-bottom: 8px; border-radius: 8px; border-left: 3px solid var(--gold); }
+        .item-header { display: flex; justify-content: space-between; align-items: center; width: 100%; }
+        .item-link { color: var(--gold); text-decoration: none; font-weight: bold; font-size: 0.8rem; border: 1px solid var(--gold); padding: 4px 8px; border-radius: 4px; }
+        .timestamp { font-size: 0.65rem; color: #666; margin-top: 5px; }
         
+        /* Admin */
         .admin-card { background: #222; padding: 12px; margin-bottom: 12px; border-radius: 8px; border: 1px solid #333; }
         .admin-btn-row { display: flex; justify-content: space-between; margin-top: 8px; }
         .admin-btn-row button { width: 48%; padding: 6px; border-radius: 4px; font-weight: bold; cursor: pointer; border: none; font-size: 0.7rem; }
@@ -117,6 +119,11 @@
             </li>`).join('');
     }
 
+    function formatDT(isoStr) {
+        const d = new Date(isoStr);
+        return d.toLocaleDateString([], { day: '2-digit', month: 'short' }) + ' ' + d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    }
+
     async function handleAction(actionType) {
         const current = allRoommates.find(r => r.is_current);
         if (!current) return;
@@ -151,21 +158,25 @@
     };
 
     async function renderLog() {
-        const { data } = await _supabase.from('History').select('*').order('created_at', { ascending: false }).limit(10);
-        document.getElementById('content-log').innerHTML = data ? data.map(h => `<div class="log-item" style="padding:10px 0; border-bottom:1px solid #222;"><div style="display:flex; justify-content:space-between; font-size:0.85rem;"><span>${h.name}</span><span style="color:var(--gold)">${h.action}</span></div></div>`).join('') : "No logs.";
+        const { data } = await _supabase.from('History').select('*').order('created_at', { ascending: false }).limit(15);
+        document.getElementById('content-log').innerHTML = data ? data.map(h => `
+            <div class="item-card">
+                <div class="item-header"><span>${h.name}</span><span style="color:${h.action === 'REFILLED' ? 'var(--gold)' : '#ff4444'}; font-weight:bold; font-size:0.75rem;">${h.action}</span></div>
+                <div class="timestamp">Time: ${formatDT(h.created_at)}</div>
+            </div>`).join('') : "No logs.";
     }
 
     async function renderMovies() {
         const { data } = await _supabase.from('Movies').select('*').order('created_at', { ascending: false });
         document.getElementById('content-movies').innerHTML = data && data.length > 0 ? data.map(m => `
-            <div class="link-item"><div class="link-header"><span>🎬 ${m.title}</span><a href="${m.url}" target="_blank" class="link-url">WATCH</a></div><div class="link-date">Added on: ${new Date(m.created_at).toLocaleDateString()}</div></div>
+            <div class="item-card"><div class="item-header"><span>🎬 ${m.title}</span><a href="${m.url}" target="_blank" class="item-link">WATCH</a></div><div class="timestamp">Added: ${formatDT(m.created_at)}</div></div>
         `).join('') : "No movies.";
     }
 
     async function renderImportant() {
         const { data } = await _supabase.from('ImportantLinks').select('*').order('created_at', { ascending: false });
         document.getElementById('content-important').innerHTML = data && data.length > 0 ? data.map(l => `
-            <div class="link-item"><div class="link-header"><span>🏷️ ${l.title}</span><a href="${l.url}" target="_blank" class="link-url">OPEN</a></div><div class="link-date">Added on: ${new Date(l.created_at).toLocaleDateString()}</div></div>
+            <div class="item-card"><div class="item-header"><span>🏷️ ${l.title}</span><a href="${l.url}" target="_blank" class="item-link">OPEN</a></div><div class="timestamp">Added: ${formatDT(l.created_at)}</div></div>
         `).join('') : "No links.";
     }
 
@@ -182,12 +193,12 @@
                 <div class="admin-btn-row"><button onclick="saveChanges(${r.id})" style="background:var(--gold)">SAVE</button><button onclick="deleteMember(${r.id})" style="background:#800; color:#fff">DEL</button></div>
             </div>`).join('');
         
-        html += `<h3 style="color:var(--gold); font-size:0.8rem; margin-top:20px;">MANAGE LINKS</h3>`;
-        html += `<div class="admin-card"><input type="text" id="l-title" placeholder="Link Name"><input type="text" id="l-url" placeholder="URL"><button onclick="addImportantLink()" class="btn-gold">ADD TAG LINK</button></div>`;
+        html += `<h3 style="color:var(--gold); font-size:0.8rem; margin-top:20px;">MANAGE TAG LINKS</h3>`;
+        html += `<div class="admin-card"><input type="text" id="l-title" placeholder="Link Name"><input type="text" id="l-url" placeholder="URL"><button onclick="addImportantLink()" class="btn-gold">ADD</button></div>`;
         html += links ? links.map(l => `<div class="admin-card" style="display:flex; justify-content:space-between; align-items:center;"><span>${l.title}</span><button onclick="deleteLink(${l.id}, 'ImportantLinks')" style="background:#800; color:#fff; border:none; padding:4px;">DEL</button></div>`).join('') : "";
 
         html += `<h3 style="color:var(--gold); font-size:0.8rem; margin-top:20px;">MANAGE MOVIES</h3>`;
-        html += `<div class="admin-card"><input type="text" id="m-title" placeholder="Movie Name"><input type="text" id="m-url" placeholder="URL"><button onclick="addMovie()" class="btn-gold">ADD MOVIE</button></div>`;
+        html += `<div class="admin-card"><input type="text" id="m-title" placeholder="Movie Name"><input type="text" id="m-url" placeholder="URL"><button onclick="addMovie()" class="btn-gold">ADD</button></div>`;
         html += movies ? movies.map(m => `<div class="admin-card" style="display:flex; justify-content:space-between; align-items:center;"><span>${m.title}</span><button onclick="deleteLink(${m.id}, 'Movies')" style="background:#800; color:#fff; border:none; padding:4px;">DEL</button></div>`).join('') : "";
         
         container.innerHTML = html;
@@ -224,4 +235,4 @@
 </script>
 </body>
     </html>
-
+    
