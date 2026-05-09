@@ -44,6 +44,12 @@
         .admin-btn-row { display: flex; justify-content: space-between; margin-top: 8px; }
         .admin-btn-row button { width: 48%; padding: 6px; border-radius: 4px; font-weight: bold; cursor: pointer; border: none; font-size: 0.7rem; }
         input { width: 100%; padding: 8px; margin: 5px 0; background: #333; color: #fff; border: 1px solid #444; border-radius: 4px; box-sizing: border-box; font-size: 0.8rem; }
+
+        /* Compact Admin History Styles */
+        .history-admin-row { display: flex; align-items: center; padding: 8px; border-bottom: 1px solid #333; font-size: 0.75rem; }
+        .history-admin-row input { width: auto; margin-right: 12px; margin-top: 0; accent-color: var(--gold); }
+        .history-text { flex: 1; }
+        .history-text b { color: var(--gold); }
     </style>
 </head>
 <body>
@@ -108,7 +114,6 @@
     let allRoommates = [];
     let dbAdminPin = "";
 
-    // Formatting Helper for Date/Time
     function formatDT(isoStr) {
         if (!isoStr) return "";
         const d = new Date(isoStr);
@@ -220,25 +225,42 @@
 
     async function renderAdmin() {
         const container = document.getElementById('content-admin');
-        let html = `<h3 style="color:var(--gold); font-size:0.8rem;">MANAGE MEMBERS & POINTS</h3>`;
+        const { data: hist } = await _supabase.from('History').select('*').order('created_at', { ascending: false }).limit(20);
+        
+        let html = `<h3 style="color:var(--gold); font-size:0.8rem;">MANAGE MEMBERS</h3>`;
         html += allRoommates.map(r => `
             <div class="admin-card">
-                <label style="font-size:0.6rem; color:#888;">NAME & PIN</label>
                 <input type="text" id="edit-n-${r.id}" value="${r.name}">
                 <input type="text" id="edit-p-${r.id}" value="${r.password}" placeholder="PIN">
-                <label style="font-size:0.6rem; color:#888;">CURRENT POINTS</label>
-                <input type="number" id="edit-pts-${r.id}" value="${r.points || 0}">
+                <input type="number" id="edit-pts-${r.id}" value="${r.points || 0}" placeholder="PTS">
                 <div class="admin-btn-row">
                     <button onclick="saveChanges(${r.id})" style="background:var(--gold)">SAVE</button>
                     <button onclick="deleteMember(${r.id})" style="background:#800; color:#fff">DEL</button>
                 </div>
             </div>`).join('');
         
+        html += `<h3 style="color:var(--gold); font-size:0.8rem; margin-top:20px;">HISTORY CLEANUP</h3>`;
+        html += `<button onclick="deleteSelectedHistory()" class="btn-gold" style="background:#800; color:#fff; margin-bottom:10px; font-size:0.7rem;">DELETE SELECTED</button>`;
+        html += `<div style="background:#111; border-radius:8px; border:1px solid #333;">` + (hist ? hist.map(h => `
+            <div class="history-admin-row">
+                <input type="checkbox" class="hist-check" value="${h.id}">
+                <div class="history-text"><b>${h.name}</b>: ${h.action}<br><span style="opacity:0.5; font-size:0.6rem;">${formatDT(h.created_at)}</span></div>
+            </div>`).join('') : "No History") + `</div>`;
+
         html += `<h3 style="color:var(--gold); font-size:0.8rem; margin-top:20px;">ADD MOVIE/LINK</h3>`;
         html += `<div class="admin-card"><input type="text" id="new-t" placeholder="Title"><input type="text" id="new-u" placeholder="URL">
                  <div class="admin-btn-row"><button onclick="addItem('Movies')" style="background:#444; color:#fff">ADD MOVIE</button><button onclick="addItem('ImportantLinks')" style="background:#444; color:#fff">ADD LINK</button></div></div>`;
         container.innerHTML = html;
     }
+
+    window.deleteSelectedHistory = async () => {
+        const selected = Array.from(document.querySelectorAll('.hist-check:checked')).map(cb => cb.value);
+        if (selected.length === 0) return alert("Select items first");
+        if (confirm(`Permanently delete ${selected.length} records?`)) {
+            const { error } = await _supabase.from('History').delete().in('id', selected);
+            if (!error) renderAdmin(); else alert("Delete failed. Check RLS permissions.");
+        }
+    };
 
     window.saveChanges = async (id) => {
         const name = document.getElementById(`edit-n-${id}`).value;
