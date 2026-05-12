@@ -85,7 +85,6 @@
             <h3 style="color:var(--gold); font-size:0.9rem; text-align:center; margin-bottom: 20px;">SETTINGS MENU</h3>
             <button class="menu-list-btn" onclick="showForm('name')">👤 Change Display Name <span>❯</span></button>
             <button class="menu-list-btn" onclick="showForm('pin')">🔒 Change Security PIN <span>❯</span></button>
-            <button id="install-btn" class="menu-list-btn" style="display:none;" onclick="triggerInstall()">📲 Install App to Home Screen <span>❯</span></button>
             <button onclick="closeOverlays()" class="btn-gold" style="background:#333; color:#fff; margin-top:20px;">CLOSE</button>
         </div>
 
@@ -127,6 +126,7 @@
 </div>
 
 <div class="fab-container">
+    <button id="download-fab" class="fab" style="display:none;" onclick="triggerInstall()">📥</button>
     <button class="fab" onclick="openImportant()">🏷️</button>
     <button class="fab" onclick="openMovies()">🎬</button>
 </div>
@@ -190,11 +190,12 @@
         selects.forEach(s => s.innerHTML = opts);
     }
 
-    // PWA: Install Handling
+    // PWA: Download/Install Handling
     window.addEventListener('beforeinstallprompt', (e) => {
         e.preventDefault();
         deferredPrompt = e;
-        document.getElementById('install-btn').style.display = 'flex';
+        // Show download FAB only if install is possible
+        document.getElementById('download-fab').style.display = 'flex';
     });
 
     async function triggerInstall() {
@@ -202,7 +203,7 @@
         deferredPrompt.prompt();
         const { outcome } = await deferredPrompt.userChoice;
         if (outcome === 'accepted') {
-            document.getElementById('install-btn').style.display = 'none';
+            document.getElementById('download-fab').style.display = 'none';
         }
         deferredPrompt = null;
     }
