@@ -15,81 +15,289 @@
         body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); display: flex; justify-content: center; padding: 20px; margin: 0; min-height: 100vh; }
         .container { width: 100%; max-width: 400px; background: var(--card); padding: 20px; border-radius: 12px; border: 1px solid #333; position: relative; height: fit-content; }
         .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-        h1 { font-size: 1.1rem; color: var(--gold); margin: 0; letter-spacing: 1px; }
-        .btn-gold { background: var(--gold); color: #000; border: none; padding: 12px; width: 100%; border-radius: 5px; font-weight: bold; cursor: pointer; margin-top: 10px; }
+        #menu-btn { background: #222; border: 1px solid #444; padding: 5px 10px; border-radius: 5px; cursor: pointer; font-size: 1.2rem; }
+        h1 { font-size: 1.1rem; color: var(--gold); margin: 0; letter-spacing: 1px; user-select: none; cursor: pointer; -webkit-tap-highlight-color: transparent; }
         
-        /* The Install Button - Hidden by default */
-        #install-container { 
-            display: none; 
-            background: rgba(212, 175, 55, 0.1); 
-            padding: 15px; 
-            border-radius: 10px; 
-            border: 1px solid var(--gold); 
-            margin-top: 20px; 
-            text-align: center;
-        }
+        .duty-card { background: #222; padding: 20px; border-radius: 10px; text-align: center; border: 1px solid var(--gold); margin-bottom: 15px; }
+        .officer-name { font-size: 1.8rem; font-weight: bold; display: block; margin: 5px 0; color: #fff; }
+        .btn-gold { background: var(--gold); color: #000; border: none; padding: 12px; width: 100%; border-radius: 5px; font-weight: bold; cursor: pointer; }
+        .btn-skip { background: #333; color: #fff; border: 1px solid #444; padding: 12px; width: 100%; border-radius: 5px; font-weight: bold; cursor: pointer; }
+        
+        .section-box { background: #111; padding: 15px; border-radius: 8px; margin-top: 10px; border: 1px dashed #444; text-align: left; }
+        .section-title { font-size: 0.65rem; color: var(--gold); margin: 0 0 10px 0; font-weight: bold; text-transform: uppercase; }
+        
+        select, .input-box { width: 100%; padding: 10px; margin-bottom: 8px; background: #222; color: #fff; border: 1px solid #444; border-radius: 5px; box-sizing: border-box; font-size: 0.8rem; }
+        
+        ul { list-style: none; padding: 0; margin: 0; }
+        li { display: flex; justify-content: space-between; padding: 12px; border-bottom: 1px solid #222; font-size: 0.9rem; align-items: center; }
+        .active-row { color: var(--gold); font-weight: bold; background: rgba(212, 175, 55, 0.05); border-left: 3px solid var(--gold); }
+        .points-badge { background: var(--gold); color: #000; padding: 2px 8px; border-radius: 10px; font-weight: bold; font-size: 0.75rem; }
+
+        .overlay { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 95%; max-width: 380px; height: 85vh; background: var(--card); border-radius: 12px; z-index: 100; padding: 20px; box-sizing: border-box; overflow-y: auto; border: 1px solid #333; box-shadow: 0 0 30px rgba(0,0,0,0.9); }
+        
+        .menu-list-btn { background: #222; border: 1px solid #444; color: white; padding: 15px; width: 100%; text-align: left; margin-bottom: 10px; border-radius: 8px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; }
+        .back-btn { background: none; border: none; color: var(--gold); cursor: pointer; font-size: 0.8rem; margin-bottom: 15px; padding: 0; text-decoration: underline; }
+
+        .item-card { display: flex; flex-direction: column; padding: 12px; background: #222; margin-bottom: 8px; border-radius: 8px; border-left: 3px solid var(--gold); }
+        .item-header { display: flex; justify-content: space-between; align-items: center; width: 100%; }
+        .item-link { color: var(--gold); text-decoration: none; font-weight: bold; font-size: 0.8rem; border: 1px solid var(--gold); padding: 4px 8px; border-radius: 4px; }
+        
+        .fab-container { position: fixed; bottom: 20px; right: 20px; display: flex; flex-direction: column; gap: 10px; z-index: 90; }
+        .fab { background: var(--gold); color: #000; width: 55px; height: 55px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; cursor: pointer; border: none; }
     </style>
 </head>
 <body>
 
 <div class="container">
     <div class="header">
+        <button id="menu-btn" onclick="openHistory()">📜</button>
         <h1 id="secret-trigger">WATER SYSTEM</h1>
     </div>
 
-    <div id="main-content">
-        <p style="text-align:center; color:#888;">App is running...</p>
+    <div class="duty-card">
+        <p style="font-size: 0.7rem; color: #888; margin: 0;">ON DUTY</p>
+        <span id="officer-name" class="officer-name">...</span>
+        <div style="display: flex; gap: 10px; margin-top: 15px;">
+            <button onclick="handleAction('SKIPPED')" class="btn-skip" style="width: 100%;">SKIP</button>
+            <button onclick="handleAction('REFILLED')" class="btn-gold" style="width: 100%;">REFILLED</button>
+        </div>
+        
+        <div class="section-box">
+            <p class="section-title">Claim Credit (Off-Turn)</p>
+            <select class="user-dropdown"><option value="">Select Name</option></select>
+            <input type="password" class="user-pin input-box" placeholder="Your PIN">
+            <button onclick="submitClaim(this)" class="btn-gold" style="padding: 8px; font-size: 0.7rem;">ADD POINT</button>
+        </div>
     </div>
 
-    <div id="install-container">
-        <p style="margin: 0 0 10px 0; font-size: 0.9rem;">Install for a better experience!</p>
-        <button id="install-btn" class="btn-gold">📥 DOWNLOAD APP</button>
+    <ul id="queue-list"></ul>
+
+    <div class="section-box" style="margin-top:20px;">
+        <p class="section-title">Public Add Content</p>
+        <select class="user-dropdown"><option value="">Select Name</option></select>
+        <input type="password" class="user-pin input-box" placeholder="Your PIN">
+        <input type="text" id="new-title" class="input-box" placeholder="Title">
+        <input type="text" id="new-url" class="input-box" placeholder="URL">
+        <div style="display: flex; gap: 5px;">
+            <button onclick="publicAddItem('Movies', this)" class="btn-skip" style="font-size:0.6rem; flex:1;">+ MOVIE</button>
+            <button onclick="publicAddItem('ImportantLinks', this)" class="btn-skip" style="font-size:0.6rem; flex:1;">+ LINK</button>
+        </div>
+    </div>
+
+    <div id="secret-overlay" class="overlay">
+        <div id="settings-menu-main">
+            <h3 style="color:var(--gold); font-size:0.9rem; text-align:center; margin-bottom: 20px;">SETTINGS MENU</h3>
+            <button class="menu-list-btn" onclick="showForm('name')">👤 Change Display Name <span>❯</span></button>
+            <button class="menu-list-btn" onclick="showForm('pin')">🔒 Change Security PIN <span>❯</span></button>
+            <button onclick="closeOverlays()" class="btn-gold" style="background:#333; color:#fff; margin-top:20px;">CLOSE</button>
+        </div>
+
+        <div id="form-container" style="display: none;">
+            <button class="back-btn" onclick="resetSettingsView()">❮ Back to Menu</button>
+            <h3 id="form-title" style="color:var(--gold); font-size:0.9rem; margin-top: 0;"></h3>
+            <div class="section-box">
+                <select id="update-user-select" class="user-dropdown" onchange="prefillCurrentName()"></select>
+                <div id="name-fields" style="display: none;">
+                    <input type="text" id="new-display-name" class="input-box" placeholder="New display name">
+                </div>
+                <div id="pin-fields" style="display: none;">
+                    <input type="password" id="new-pin-val" class="input-box" placeholder="New 4-digit PIN">
+                </div>
+                <hr style="border: 0; border-top: 1px solid #333; margin: 15px 0;">
+                <input type="password" id="old-pin-verify" class="input-box" placeholder="Verify Current PIN">
+                <button onclick="executeInfoUpdate()" class="btn-gold">SAVE CHANGES</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="history-overlay" class="overlay">
+        <h3 style="color:var(--gold); font-size:0.9rem; text-align:center;">📜 HISTORY</h3>
+        <div id="content-log"></div>
+        <button onclick="closeOverlays()" class="btn-gold" style="background:#333; color:#fff; margin-top:20px;">CLOSE</button>
+    </div>
+
+    <div id="movie-overlay" class="overlay">
+        <h3 style="color:var(--gold); font-size:0.9rem; text-align:center;">🎬 MOVIES</h3>
+        <div id="content-movies"></div>
+        <button onclick="closeOverlays()" class="btn-gold" style="background:#333; color:#fff; margin-top:20px;">CLOSE</button>
+    </div>
+
+    <div id="important-overlay" class="overlay">
+        <h3 style="color:var(--gold); font-size:0.9rem; text-align:center;">🏷️ LINKS</h3>
+        <div id="content-important"></div>
+        <button onclick="closeOverlays()" class="btn-gold" style="background:#333; color:#fff; margin-top:20px;">CLOSE</button>
     </div>
 </div>
 
+<div class="fab-container">
+    <button class="fab" onclick="openImportant()">🏷️</button>
+    <button class="fab" onclick="openMovies()">🎬</button>
+</div>
+
 <script>
-    // 1. REGISTER SERVICE WORKER
+    // Register Service Worker for PWA
     if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
-            navigator.serviceWorker.register('sw.js')
-            .then(reg => console.log('SW Registered'))
-            .catch(err => console.log('SW Error', err));
+            navigator.serviceWorker.register('sw.js').catch(err => console.log('SW failed', err));
         });
     }
 
-    // 2. CAPTURE INSTALL PROMPT
-    let deferredPrompt;
-    const installContainer = document.getElementById('install-container');
-    const installBtn = document.getElementById('install-btn');
+    const supabaseUrl = 'https://jlqqqriobwcxmoapmhze.supabase.co';
+    const supabaseKey = 'sb_publishable_ODRaIqpK-ZwJnsIqdsPkxA_n8ip5SEa';
+    const _supabase = supabase.createClient(supabaseUrl, supabaseKey);
 
-    window.addEventListener('beforeinstallprompt', (e) => {
-        // Prevent Chrome from showing its own prompt automatically
-        e.preventDefault();
-        // Save the event so it can be triggered later
-        deferredPrompt = e;
-        // Show our custom download UI
-        installContainer.style.display = 'block';
-    });
+    let allRoommates = [];
+    let pressTimer;
+    let activeMode = '';
 
-    installBtn.addEventListener('click', async () => {
-        if (deferredPrompt) {
-            // Show the official prompt
-            deferredPrompt.prompt();
-            // Wait for the user to respond to the prompt
-            const { outcome } = await deferredPrompt.userChoice;
-            if (outcome === 'accepted') {
-                console.log('User accepted the install');
-                installContainer.style.display = 'none';
+    function formatDT(isoStr) {
+        if (!isoStr) return "";
+        const d = new Date(isoStr);
+        return d.toLocaleDateString([], { day: '2-digit', month: 'short' }) + ' ' + d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    }
+
+    async function checkDailyLimit() {
+        const { data } = await _supabase.from('History')
+            .select('created_at')
+            .or('action.eq.REFILLED,action.eq.REFILLED (OFF-TURN)')
+            .order('created_at', { ascending: false }).limit(1);
+        if (data && data.length > 0) {
+            const diff = new Date().getTime() - new Date(data[0].created_at).getTime();
+            if (diff < 64800000) {
+                const h = Math.floor((64800000 - diff) / 3600000);
+                alert(`Limit reached! Next credit in ${h} hours.`);
+                return false;
             }
-            deferredPrompt = null;
         }
-    });
+        return true;
+    }
 
-    // Hide button if app is already installed
-    window.addEventListener('appinstalled', () => {
-        installContainer.style.display = 'none';
-        console.log('App successfully installed');
-    });
+    async function init() { await loadData(); }
+
+    async function loadData() {
+        const { data } = await _supabase.from('Roommate').select('*').order('queue_order', { ascending: true });
+        if (data) { allRoommates = data; renderUI(); updateDropdowns(); }
+    }
+
+    function renderUI() {
+        const current = allRoommates.find(r => r.is_current);
+        document.getElementById('officer-name').innerText = current ? current.name : "None";
+        document.getElementById('queue-list').innerHTML = allRoommates.map(r => `
+            <li class="${r.is_current ? 'active-row' : ''}">
+                <span>${r.name}</span>
+                <span class="points-badge">${r.points || 0} PTS</span>
+            </li>`).join('');
+    }
+
+    function updateDropdowns() {
+        const selects = document.querySelectorAll('.user-dropdown');
+        const opts = '<option value="">Select User</option>' + allRoommates.map(r => `<option value="${r.id}">${r.name}</option>`).join('');
+        selects.forEach(s => s.innerHTML = opts);
+    }
+
+    // Hold to open secret
+    const trigger = document.getElementById('secret-trigger');
+    const startHold = (e) => { e.preventDefault(); pressTimer = setTimeout(() => { document.getElementById('secret-overlay').style.display = 'block'; }, 2000); };
+    const cancelHold = () => clearTimeout(pressTimer);
+    trigger.addEventListener('mousedown', startHold);
+    trigger.addEventListener('touchstart', startHold);
+    trigger.addEventListener('mouseup', cancelHold);
+    trigger.addEventListener('touchend', cancelHold);
+
+    // Settings Menu Logic
+    function showForm(mode) {
+        activeMode = mode;
+        document.getElementById('settings-menu-main').style.display = 'none';
+        document.getElementById('form-container').style.display = 'block';
+        document.getElementById('name-fields').style.display = (mode === 'name') ? 'block' : 'none';
+        document.getElementById('pin-fields').style.display = (mode === 'pin') ? 'block' : 'none';
+        document.getElementById('form-title').innerText = (mode === 'name') ? 'Change Name' : 'Change PIN';
+    }
+
+    function resetSettingsView() {
+        document.getElementById('settings-menu-main').style.display = 'block';
+        document.getElementById('form-container').style.display = 'none';
+        document.getElementById('old-pin-verify').value = '';
+    }
+
+    function prefillCurrentName() {
+        if (activeMode !== 'name') return;
+        const id = document.getElementById('update-user-select').value;
+        const user = allRoommates.find(r => r.id == id);
+        if (user) document.getElementById('new-display-name').value = user.name;
+    }
+
+    async function executeInfoUpdate() {
+        const id = document.getElementById('update-user-select').value;
+        const oldP = document.getElementById('old-pin-verify').value;
+        const user = allRoommates.find(r => r.id == id);
+        if (!user || oldP !== user.password) return alert("Verification Failed");
+
+        let up = {};
+        if (activeMode === 'name') up.name = document.getElementById('new-display-name').value;
+        if (activeMode === 'pin') up.password = document.getElementById('new-pin-val').value;
+        
+        await _supabase.from('Roommate').update(up).eq('id', id);
+        alert("Updated!"); closeOverlays(); loadData();
+    }
+
+    // Core Actions
+    async function handleAction(type) {
+        const current = allRoommates.find(r => r.is_current);
+        const pin = prompt(`PIN for ${current.name}:`);
+        if (pin !== current.password) return alert("Wrong PIN");
+        if (type === 'REFILLED' && !(await checkDailyLimit())) return;
+        const next = allRoommates[(allRoommates.indexOf(current) + 1) % allRoommates.length];
+        await _supabase.from('History').insert([{ name: current.name, action: type }]);
+        if (type === 'REFILLED') await _supabase.from('Roommate').update({ points: (current.points || 0) + 1 }).eq('id', current.id);
+        await _supabase.from('Roommate').update({ is_current: false }).eq('id', current.id);
+        await _supabase.from('Roommate').update({ is_current: true }).eq('id', next.id);
+        loadData();
+    }
+
+    async function submitClaim(btn) {
+        const id = btn.parentElement.querySelector('.user-dropdown').value;
+        const pin = btn.parentElement.querySelector('.user-pin').value;
+        const user = allRoommates.find(r => r.id == id);
+        if (!user || pin !== user.password) return alert("Auth Failed");
+        if (!(await checkDailyLimit())) return;
+        await _supabase.from('Roommate').update({ points: (user.points || 0) + 1 }).eq('id', user.id);
+        await _supabase.from('History').insert([{ name: user.name, action: 'REFILLED (OFF-TURN)' }]);
+        loadData();
+    }
+
+    async function publicAddItem(table, btn) {
+        const id = btn.parentElement.parentElement.querySelector('.user-dropdown').value;
+        const pin = btn.parentElement.parentElement.querySelector('.user-pin').value;
+        const user = allRoommates.find(r => r.id == id);
+        if (!user || pin !== user.password) return alert("Auth Failed");
+        const title = document.getElementById('new-title').value;
+        const url = document.getElementById('new-url').value;
+        await _supabase.from(table).insert([{ title, url }]);
+        alert("Added!"); loadData();
+    }
+
+    async function openHistory() {
+        document.getElementById('history-overlay').style.display = 'block';
+        const { data } = await _supabase.from('History').select('*').order('created_at', { ascending: false }).limit(25);
+        document.getElementById('content-log').innerHTML = data.map(h => `<div class="item-card"><div class="item-header"><span>${h.name}</span><b>${h.action}</b></div><div style="font-size:0.6rem; color:#666;">${formatDT(h.created_at)}</div></div>`).join('');
+    }
+
+    window.openMovies = async () => {
+        document.getElementById('movie-overlay').style.display = 'block';
+        const { data } = await _supabase.from('Movies').select('*').order('created_at', { ascending: false });
+        document.getElementById('content-movies').innerHTML = data.map(m => `<div class="item-card"><div class="item-header"><span>🎬 ${m.title}</span><a href="${m.url}" target="_blank" class="item-link">WATCH</a></div></div>`).join('');
+    };
+
+    window.openImportant = async () => {
+        document.getElementById('important-overlay').style.display = 'block';
+        const { data } = await _supabase.from('ImportantLinks').select('*').order('created_at', { ascending: false });
+        document.getElementById('content-important').innerHTML = data.map(l => `<div class="item-card"><div class="item-header"><span>🏷️ ${l.title}</span><a href="${l.url}" target="_blank" class="item-link">OPEN</a></div></div>`).join('');
+    };
+
+    window.closeOverlays = () => { document.querySelectorAll('.overlay').forEach(o => o.style.display = 'none'); resetSettingsView(); };
+    init();
 </script>
 </body>
-</html>
+    </html>
+    
