@@ -7,7 +7,7 @@
     
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#d4af37">
-    <link rel="apple-touch-icon" href="icon-512.png">
+    <link rel="apple-touch-icon" href="image1.png">
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
@@ -34,7 +34,6 @@
         .points-badge { background: var(--gold); color: #000; padding: 2px 8px; border-radius: 10px; font-weight: bold; font-size: 0.75rem; }
 
         .overlay { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 95%; max-width: 380px; height: 85vh; background: var(--card); border-radius: 12px; z-index: 100; padding: 20px; box-sizing: border-box; overflow-y: auto; border: 1px solid #333; box-shadow: 0 0 30px rgba(0,0,0,0.9); }
-        
         .menu-list-btn { background: #222; border: 1px solid #444; color: white; padding: 15px; width: 100%; text-align: left; margin-bottom: 10px; border-radius: 8px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; }
         .back-btn { background: none; border: none; color: var(--gold); cursor: pointer; font-size: 0.8rem; margin-bottom: 15px; padding: 0; text-decoration: underline; }
 
@@ -45,8 +44,8 @@
         .fab-container { position: fixed; bottom: 20px; right: 20px; display: flex; flex-direction: column; gap: 10px; z-index: 90; }
         .fab { background: var(--gold); color: #000; width: 55px; height: 55px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; cursor: pointer; border: none; }
 
-        /* Install Button Style */
-        #install-btn { display: none; margin-top: 20px; background: transparent; border: 1px solid var(--gold); color: var(--gold); }
+        /* Popup Style */
+        #install-popup { display: none; position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); width: 90%; max-width: 350px; background: #1a1a1a; border: 2px solid var(--gold); border-radius: 15px; padding: 20px; z-index: 9999; box-shadow: 0 10px 30px rgba(0,0,0,0.8); text-align: center; }
     </style>
 </head>
 <body>
@@ -87,32 +86,39 @@
         </div>
     </div>
 
-    <button id="install-btn" class="btn-gold">📥 DOWNLOAD APP</button>
+    <div id="install-popup">
+        <img src="image1.png" alt="App Icon" style="width: 60px; height: 60px; border-radius: 12px; margin-bottom: 10px; border: 1px solid var(--gold);">
+        <h3 style="margin: 0; color: var(--gold); font-size: 1.1rem;">Install Water System</h3>
+        <p style="font-size: 0.85rem; color: #ccc; margin: 10px 0;">Add to home screen for quick access.</p>
+        <div style="display: flex; gap: 10px; margin-top: 15px;">
+            <button onclick="closeInstallPopup()" style="background: #333; color: white; border: none; padding: 12px; flex: 1; border-radius: 8px; cursor: pointer;">LATER</button>
+            <button id="confirm-install-btn" style="background: var(--gold); color: black; border: none; padding: 12px; flex: 2; border-radius: 8px; font-weight: bold; cursor: pointer;">INSTALL NOW</button>
+        </div>
+    </div>
 
     <div id="secret-overlay" class="overlay">
         <div id="settings-menu-main">
-            <h3 style="color:var(--gold); font-size:0.9rem; text-align:center; margin-bottom: 20px;">SETTINGS MENU</h3>
-            <button class="menu-list-btn" onclick="showForm('name')">👤 Change Display Name <span>❯</span></button>
-            <button class="menu-list-btn" onclick="showForm('pin')">🔒 Change Security PIN <span>❯</span></button>
+            <h3 style="color:var(--gold); font-size:0.9rem; text-align:center; margin-bottom: 20px;">SETTINGS</h3>
+            <button class="menu-list-btn" onclick="showForm('name')">👤 Change Name <span>❯</span></button>
+            <button class="menu-list-btn" onclick="showForm('pin')">🔒 Change PIN <span>❯</span></button>
             <button onclick="closeOverlays()" class="btn-gold" style="background:#333; color:#fff; margin-top:20px;">CLOSE</button>
         </div>
         <div id="form-container" style="display: none;">
-            <button class="back-btn" onclick="resetSettingsView()">❮ Back to Menu</button>
-            <h3 id="form-title" style="color:var(--gold); font-size:0.9rem; margin-top: 0;"></h3>
+            <button class="back-btn" onclick="resetSettingsView()">❮ Back</button>
+            <h3 id="form-title" style="color:var(--gold); font-size:0.9rem;"></h3>
             <div class="section-box">
-                <select id="update-user-select" class="user-dropdown" onchange="prefillCurrentName()"></select>
-                <div id="name-fields" style="display: none;"><input type="text" id="new-display-name" class="input-box" placeholder="New display name"></div>
-                <div id="pin-fields" style="display: none;"><input type="password" id="new-pin-val" class="input-box" placeholder="New 4-digit PIN"></div>
-                <hr style="border: 0; border-top: 1px solid #333; margin: 15px 0;">
-                <input type="password" id="old-pin-verify" class="input-box" placeholder="Verify Current PIN">
-                <button onclick="executeInfoUpdate()" class="btn-gold">SAVE CHANGES</button>
+                <select id="update-user-select" class="user-dropdown"></select>
+                <div id="name-fields" style="display: none;"><input type="text" id="new-display-name" class="input-box" placeholder="New Name"></div>
+                <div id="pin-fields" style="display: none;"><input type="password" id="new-pin-val" class="input-box" placeholder="New PIN"></div>
+                <input type="password" id="old-pin-verify" class="input-box" placeholder="Verify Current PIN" style="margin-top:15px;">
+                <button onclick="executeInfoUpdate()" class="btn-gold">SAVE</button>
             </div>
         </div>
     </div>
 
-    <div id="history-overlay" class="overlay"><h3 style="color:var(--gold); font-size:0.9rem; text-align:center;">📜 HISTORY</h3><div id="content-log"></div><button onclick="closeOverlays()" class="btn-gold" style="background:#333; color:#fff; margin-top:20px;">CLOSE</button></div>
-    <div id="movie-overlay" class="overlay"><h3 style="color:var(--gold); font-size:0.9rem; text-align:center;">🎬 MOVIES</h3><div id="content-movies"></div><button onclick="closeOverlays()" class="btn-gold" style="background:#333; color:#fff; margin-top:20px;">CLOSE</button></div>
-    <div id="important-overlay" class="overlay"><h3 style="color:var(--gold); font-size:0.9rem; text-align:center;">🏷️ LINKS</h3><div id="content-important"></div><button onclick="closeOverlays()" class="btn-gold" style="background:#333; color:#fff; margin-top:20px;">CLOSE</button></div>
+    <div id="history-overlay" class="overlay"><h3 style="color:var(--gold); font-size:0.9rem; text-align:center;">📜 HISTORY</h3><div id="content-log"></div><button onclick="closeOverlays()" class="btn-gold" style="background:#333; margin-top:20px;">CLOSE</button></div>
+    <div id="movie-overlay" class="overlay"><h3 style="color:var(--gold); font-size:0.9rem; text-align:center;">🎬 MOVIES</h3><div id="content-movies"></div><button onclick="closeOverlays()" class="btn-gold" style="background:#333; margin-top:20px;">CLOSE</button></div>
+    <div id="important-overlay" class="overlay"><h3 style="color:var(--gold); font-size:0.9rem; text-align:center;">🏷️ LINKS</h3><div id="content-important"></div><button onclick="closeOverlays()" class="btn-gold" style="background:#333; margin-top:20px;">CLOSE</button></div>
 </div>
 
 <div class="fab-container">
@@ -121,32 +127,27 @@
 </div>
 
 <script>
-    // --- PWA INSTALL LOGIC ---
+    // 1. PWA POPUP LOGIC
     let deferredPrompt;
-    const installBtn = document.getElementById('install-btn');
-
-    if ('serviceWorker' in navigator) {
-        window.addEventListener('load', () => {
-            navigator.serviceWorker.register('sw.js').catch(err => console.log('SW failed', err));
-        });
-    }
-
     window.addEventListener('beforeinstallprompt', (e) => {
-        e.preventDefault(); // Stop automatic popup
-        deferredPrompt = e; // Save event
-        installBtn.style.display = 'block'; // Show manual button
+        e.preventDefault();
+        deferredPrompt = e;
+        setTimeout(() => { document.getElementById('install-popup').style.display = 'block'; }, 2000);
     });
 
-    installBtn.addEventListener('click', async () => {
+    document.getElementById('confirm-install-btn').addEventListener('click', async () => {
         if (deferredPrompt) {
             deferredPrompt.prompt();
             const { outcome } = await deferredPrompt.userChoice;
-            if (outcome === 'accepted') installBtn.style.display = 'none';
+            if (outcome === 'accepted') document.getElementById('install-popup').style.display = 'none';
             deferredPrompt = null;
         }
     });
 
-    // --- APP LOGIC ---
+    function closeInstallPopup() { document.getElementById('install-popup').style.display = 'none'; }
+    if ('serviceWorker' in navigator) { navigator.serviceWorker.register('sw.js'); }
+
+    // 2. SUPABASE LOGIC
     const supabaseUrl = 'https://jlqqqriobwcxmoapmhze.supabase.co';
     const supabaseKey = 'sb_publishable_ODRaIqpK-ZwJnsIqdsPkxA_n8ip5SEa';
     const _supabase = supabase.createClient(supabaseUrl, supabaseKey);
@@ -155,25 +156,6 @@
     let pressTimer;
     let activeMode = '';
 
-    function formatDT(isoStr) {
-        if (!isoStr) return "";
-        const d = new Date(isoStr);
-        return d.toLocaleDateString([], { day: '2-digit', month: 'short' }) + ' ' + d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-    }
-
-    async function checkDailyLimit() {
-        const { data } = await _supabase.from('History').select('created_at').or('action.eq.REFILLED,action.eq.REFILLED (OFF-TURN)').order('created_at', { ascending: false }).limit(1);
-        if (data && data.length > 0) {
-            const diff = new Date().getTime() - new Date(data[0].created_at).getTime();
-            if (diff < 64800000) {
-                const h = Math.floor((64800000 - diff) / 3600000);
-                alert(`Limit reached! Next credit in ${h} hours.`);
-                return false;
-            }
-        }
-        return true;
-    }
-
     async function loadData() {
         const { data } = await _supabase.from('Roommate').select('*').order('queue_order', { ascending: true });
         if (data) { allRoommates = data; renderUI(); updateDropdowns(); }
@@ -181,7 +163,7 @@
 
     function renderUI() {
         const current = allRoommates.find(r => r.is_current);
-        document.getElementById('officer-name').innerText = current ? current.name : "None";
+        document.getElementById('officer-name').innerText = current ? current.name : "...";
         document.getElementById('queue-list').innerHTML = allRoommates.map(r => `<li class="${r.is_current ? 'active-row' : ''}"><span>${r.name}</span><span class="points-badge">${r.points || 0} PTS</span></li>`).join('');
     }
 
@@ -191,11 +173,10 @@
         selects.forEach(s => s.innerHTML = opts);
     }
 
+    // Secret Hold
     const trigger = document.getElementById('secret-trigger');
-    const startHold = (e) => { e.preventDefault(); pressTimer = setTimeout(() => { document.getElementById('secret-overlay').style.display = 'block'; }, 2000); };
-    const cancelHold = () => clearTimeout(pressTimer);
-    trigger.addEventListener('mousedown', startHold); trigger.addEventListener('touchstart', startHold);
-    trigger.addEventListener('mouseup', cancelHold); trigger.addEventListener('touchend', cancelHold);
+    trigger.addEventListener('touchstart', () => { pressTimer = setTimeout(() => { document.getElementById('secret-overlay').style.display = 'block'; }, 2000); });
+    trigger.addEventListener('touchend', () => clearTimeout(pressTimer));
 
     function showForm(mode) {
         activeMode = mode;
@@ -212,7 +193,7 @@
         const id = document.getElementById('update-user-select').value;
         const oldP = document.getElementById('old-pin-verify').value;
         const user = allRoommates.find(r => r.id == id);
-        if (!user || oldP !== user.password) return alert("Verification Failed");
+        if (!user || oldP !== user.password) return alert("Wrong PIN");
         let up = {};
         if (activeMode === 'name') up.name = document.getElementById('new-display-name').value;
         if (activeMode === 'pin') up.password = document.getElementById('new-pin-val').value;
@@ -224,23 +205,11 @@
         const current = allRoommates.find(r => r.is_current);
         const pin = prompt(`PIN for ${current.name}:`);
         if (pin !== current.password) return alert("Wrong PIN");
-        if (type === 'REFILLED' && !(await checkDailyLimit())) return;
         const next = allRoommates[(allRoommates.indexOf(current) + 1) % allRoommates.length];
         await _supabase.from('History').insert([{ name: current.name, action: type }]);
         if (type === 'REFILLED') await _supabase.from('Roommate').update({ points: (current.points || 0) + 1 }).eq('id', current.id);
         await _supabase.from('Roommate').update({ is_current: false }).eq('id', current.id);
         await _supabase.from('Roommate').update({ is_current: true }).eq('id', next.id);
-        loadData();
-    }
-
-    async function submitClaim(btn) {
-        const id = btn.parentElement.querySelector('.user-dropdown').value;
-        const pin = btn.parentElement.querySelector('.user-pin').value;
-        const user = allRoommates.find(r => r.id == id);
-        if (!user || pin !== user.password) return alert("Auth Failed");
-        if (!(await checkDailyLimit())) return;
-        await _supabase.from('Roommate').update({ points: (user.points || 0) + 1 }).eq('id', user.id);
-        await _supabase.from('History').insert([{ name: user.name, action: 'REFILLED (OFF-TURN)' }]);
         loadData();
     }
 
@@ -257,24 +226,25 @@
 
     async function openHistory() {
         document.getElementById('history-overlay').style.display = 'block';
-        const { data } = await _supabase.from('History').select('*').order('created_at', { ascending: false }).limit(25);
-        document.getElementById('content-log').innerHTML = data.map(h => `<div class="item-card"><div class="item-header"><span>${h.name}</span><b>${h.action}</b></div><div style="font-size:0.6rem; color:#666;">${formatDT(h.created_at)}</div></div>`).join('');
+        const { data } = await _supabase.from('History').select('*').order('created_at', { ascending: false }).limit(20);
+        document.getElementById('content-log').innerHTML = data.map(h => `<div class="item-card"><b>${h.name}</b>: ${h.action}</div>`).join('');
     }
 
     window.openMovies = async () => {
         document.getElementById('movie-overlay').style.display = 'block';
-        const { data } = await _supabase.from('Movies').select('*').order('created_at', { ascending: false });
-        document.getElementById('content-movies').innerHTML = data.map(m => `<div class="item-card"><div class="item-header"><span>🎬 ${m.title}</span><a href="${m.url}" target="_blank" class="item-link">WATCH</a></div></div>`).join('');
+        const { data } = await _supabase.from('Movies').select('*');
+        document.getElementById('content-movies').innerHTML = data.map(m => `<div class="item-card"><div class="item-header"><span>${m.title}</span><a href="${m.url}" target="_blank" class="item-link">WATCH</a></div></div>`).join('');
     };
 
     window.openImportant = async () => {
         document.getElementById('important-overlay').style.display = 'block';
-        const { data } = await _supabase.from('ImportantLinks').select('*').order('created_at', { ascending: false });
-        document.getElementById('content-important').innerHTML = data.map(l => `<div class="item-card"><div class="item-header"><span>🏷️ ${l.title}</span><a href="${l.url}" target="_blank" class="item-link">OPEN</a></div></div>`).join('');
+        const { data } = await _supabase.from('ImportantLinks').select('*');
+        document.getElementById('content-important').innerHTML = data.map(l => `<div class="item-card"><div class="item-header"><span>${l.title}</span><a href="${l.url}" target="_blank" class="item-link">OPEN</a></div></div>`).join('');
     };
 
     window.closeOverlays = () => { document.querySelectorAll('.overlay').forEach(o => o.style.display = 'none'); resetSettingsView(); };
     loadData();
 </script>
 </body>
-</html>
+    </html>
+                
