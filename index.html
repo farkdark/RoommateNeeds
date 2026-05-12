@@ -44,6 +44,9 @@
         
         .fab-container { position: fixed; bottom: 20px; right: 20px; display: flex; flex-direction: column; gap: 10px; z-index: 90; }
         .fab { background: var(--gold); color: #000; width: 55px; height: 55px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; cursor: pointer; border: none; }
+
+        /* Install Button Style */
+        #install-btn { display: none; margin-top: 20px; background: transparent; border: 1px solid var(--gold); color: var(--gold); }
     </style>
 </head>
 <body>
@@ -84,6 +87,8 @@
         </div>
     </div>
 
+    <button id="install-btn" class="btn-gold">📥 DOWNLOAD APP</button>
+
     <div id="secret-overlay" class="overlay">
         <div id="settings-menu-main">
             <h3 style="color:var(--gold); font-size:0.9rem; text-align:center; margin-bottom: 20px;">SETTINGS MENU</h3>
@@ -91,18 +96,13 @@
             <button class="menu-list-btn" onclick="showForm('pin')">🔒 Change Security PIN <span>❯</span></button>
             <button onclick="closeOverlays()" class="btn-gold" style="background:#333; color:#fff; margin-top:20px;">CLOSE</button>
         </div>
-
         <div id="form-container" style="display: none;">
             <button class="back-btn" onclick="resetSettingsView()">❮ Back to Menu</button>
             <h3 id="form-title" style="color:var(--gold); font-size:0.9rem; margin-top: 0;"></h3>
             <div class="section-box">
                 <select id="update-user-select" class="user-dropdown" onchange="prefillCurrentName()"></select>
-                <div id="name-fields" style="display: none;">
-                    <input type="text" id="new-display-name" class="input-box" placeholder="New display name">
-                </div>
-                <div id="pin-fields" style="display: none;">
-                    <input type="password" id="new-pin-val" class="input-box" placeholder="New 4-digit PIN">
-                </div>
+                <div id="name-fields" style="display: none;"><input type="text" id="new-display-name" class="input-box" placeholder="New display name"></div>
+                <div id="pin-fields" style="display: none;"><input type="password" id="new-pin-val" class="input-box" placeholder="New 4-digit PIN"></div>
                 <hr style="border: 0; border-top: 1px solid #333; margin: 15px 0;">
                 <input type="password" id="old-pin-verify" class="input-box" placeholder="Verify Current PIN">
                 <button onclick="executeInfoUpdate()" class="btn-gold">SAVE CHANGES</button>
@@ -110,23 +110,9 @@
         </div>
     </div>
 
-    <div id="history-overlay" class="overlay">
-        <h3 style="color:var(--gold); font-size:0.9rem; text-align:center;">📜 HISTORY</h3>
-        <div id="content-log"></div>
-        <button onclick="closeOverlays()" class="btn-gold" style="background:#333; color:#fff; margin-top:20px;">CLOSE</button>
-    </div>
-
-    <div id="movie-overlay" class="overlay">
-        <h3 style="color:var(--gold); font-size:0.9rem; text-align:center;">🎬 MOVIES</h3>
-        <div id="content-movies"></div>
-        <button onclick="closeOverlays()" class="btn-gold" style="background:#333; color:#fff; margin-top:20px;">CLOSE</button>
-    </div>
-
-    <div id="important-overlay" class="overlay">
-        <h3 style="color:var(--gold); font-size:0.9rem; text-align:center;">🏷️ LINKS</h3>
-        <div id="content-important"></div>
-        <button onclick="closeOverlays()" class="btn-gold" style="background:#333; color:#fff; margin-top:20px;">CLOSE</button>
-    </div>
+    <div id="history-overlay" class="overlay"><h3 style="color:var(--gold); font-size:0.9rem; text-align:center;">📜 HISTORY</h3><div id="content-log"></div><button onclick="closeOverlays()" class="btn-gold" style="background:#333; color:#fff; margin-top:20px;">CLOSE</button></div>
+    <div id="movie-overlay" class="overlay"><h3 style="color:var(--gold); font-size:0.9rem; text-align:center;">🎬 MOVIES</h3><div id="content-movies"></div><button onclick="closeOverlays()" class="btn-gold" style="background:#333; color:#fff; margin-top:20px;">CLOSE</button></div>
+    <div id="important-overlay" class="overlay"><h3 style="color:var(--gold); font-size:0.9rem; text-align:center;">🏷️ LINKS</h3><div id="content-important"></div><button onclick="closeOverlays()" class="btn-gold" style="background:#333; color:#fff; margin-top:20px;">CLOSE</button></div>
 </div>
 
 <div class="fab-container">
@@ -135,13 +121,32 @@
 </div>
 
 <script>
-    // Register Service Worker for PWA
+    // --- PWA INSTALL LOGIC ---
+    let deferredPrompt;
+    const installBtn = document.getElementById('install-btn');
+
     if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
             navigator.serviceWorker.register('sw.js').catch(err => console.log('SW failed', err));
         });
     }
 
+    window.addEventListener('beforeinstallprompt', (e) => {
+        e.preventDefault(); // Stop automatic popup
+        deferredPrompt = e; // Save event
+        installBtn.style.display = 'block'; // Show manual button
+    });
+
+    installBtn.addEventListener('click', async () => {
+        if (deferredPrompt) {
+            deferredPrompt.prompt();
+            const { outcome } = await deferredPrompt.userChoice;
+            if (outcome === 'accepted') installBtn.style.display = 'none';
+            deferredPrompt = null;
+        }
+    });
+
+    // --- APP LOGIC ---
     const supabaseUrl = 'https://jlqqqriobwcxmoapmhze.supabase.co';
     const supabaseKey = 'sb_publishable_ODRaIqpK-ZwJnsIqdsPkxA_n8ip5SEa';
     const _supabase = supabase.createClient(supabaseUrl, supabaseKey);
@@ -157,10 +162,7 @@
     }
 
     async function checkDailyLimit() {
-        const { data } = await _supabase.from('History')
-            .select('created_at')
-            .or('action.eq.REFILLED,action.eq.REFILLED (OFF-TURN)')
-            .order('created_at', { ascending: false }).limit(1);
+        const { data } = await _supabase.from('History').select('created_at').or('action.eq.REFILLED,action.eq.REFILLED (OFF-TURN)').order('created_at', { ascending: false }).limit(1);
         if (data && data.length > 0) {
             const diff = new Date().getTime() - new Date(data[0].created_at).getTime();
             if (diff < 64800000) {
@@ -172,8 +174,6 @@
         return true;
     }
 
-    async function init() { await loadData(); }
-
     async function loadData() {
         const { data } = await _supabase.from('Roommate').select('*').order('queue_order', { ascending: true });
         if (data) { allRoommates = data; renderUI(); updateDropdowns(); }
@@ -182,11 +182,7 @@
     function renderUI() {
         const current = allRoommates.find(r => r.is_current);
         document.getElementById('officer-name').innerText = current ? current.name : "None";
-        document.getElementById('queue-list').innerHTML = allRoommates.map(r => `
-            <li class="${r.is_current ? 'active-row' : ''}">
-                <span>${r.name}</span>
-                <span class="points-badge">${r.points || 0} PTS</span>
-            </li>`).join('');
+        document.getElementById('queue-list').innerHTML = allRoommates.map(r => `<li class="${r.is_current ? 'active-row' : ''}"><span>${r.name}</span><span class="points-badge">${r.points || 0} PTS</span></li>`).join('');
     }
 
     function updateDropdowns() {
@@ -195,16 +191,12 @@
         selects.forEach(s => s.innerHTML = opts);
     }
 
-    // Hold to open secret
     const trigger = document.getElementById('secret-trigger');
     const startHold = (e) => { e.preventDefault(); pressTimer = setTimeout(() => { document.getElementById('secret-overlay').style.display = 'block'; }, 2000); };
     const cancelHold = () => clearTimeout(pressTimer);
-    trigger.addEventListener('mousedown', startHold);
-    trigger.addEventListener('touchstart', startHold);
-    trigger.addEventListener('mouseup', cancelHold);
-    trigger.addEventListener('touchend', cancelHold);
+    trigger.addEventListener('mousedown', startHold); trigger.addEventListener('touchstart', startHold);
+    trigger.addEventListener('mouseup', cancelHold); trigger.addEventListener('touchend', cancelHold);
 
-    // Settings Menu Logic
     function showForm(mode) {
         activeMode = mode;
         document.getElementById('settings-menu-main').style.display = 'none';
@@ -214,34 +206,20 @@
         document.getElementById('form-title').innerText = (mode === 'name') ? 'Change Name' : 'Change PIN';
     }
 
-    function resetSettingsView() {
-        document.getElementById('settings-menu-main').style.display = 'block';
-        document.getElementById('form-container').style.display = 'none';
-        document.getElementById('old-pin-verify').value = '';
-    }
-
-    function prefillCurrentName() {
-        if (activeMode !== 'name') return;
-        const id = document.getElementById('update-user-select').value;
-        const user = allRoommates.find(r => r.id == id);
-        if (user) document.getElementById('new-display-name').value = user.name;
-    }
+    function resetSettingsView() { document.getElementById('settings-menu-main').style.display = 'block'; document.getElementById('form-container').style.display = 'none'; }
 
     async function executeInfoUpdate() {
         const id = document.getElementById('update-user-select').value;
         const oldP = document.getElementById('old-pin-verify').value;
         const user = allRoommates.find(r => r.id == id);
         if (!user || oldP !== user.password) return alert("Verification Failed");
-
         let up = {};
         if (activeMode === 'name') up.name = document.getElementById('new-display-name').value;
         if (activeMode === 'pin') up.password = document.getElementById('new-pin-val').value;
-        
         await _supabase.from('Roommate').update(up).eq('id', id);
         alert("Updated!"); closeOverlays(); loadData();
     }
 
-    // Core Actions
     async function handleAction(type) {
         const current = allRoommates.find(r => r.is_current);
         const pin = prompt(`PIN for ${current.name}:`);
@@ -296,8 +274,8 @@
     };
 
     window.closeOverlays = () => { document.querySelectorAll('.overlay').forEach(o => o.style.display = 'none'); resetSettingsView(); };
-    init();
+    loadData();
 </script>
 </body>
-    </html>
+                </html>
     
