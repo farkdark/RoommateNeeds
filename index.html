@@ -4,6 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Water Credit System</title>
+    
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#d4af37">
+    <link rel="apple-touch-icon" href="icon-512.png">
+
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         :root { --gold: #d4af37; --bg: #0a0a0a; --card: #1a1a1a; --text: #ffffff; }
@@ -39,6 +44,9 @@
         
         .fab-container { position: fixed; bottom: 20px; right: 20px; display: flex; flex-direction: column; gap: 10px; z-index: 90; }
         .fab { background: var(--gold); color: #000; width: 55px; height: 55px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; cursor: pointer; border: none; }
+        
+        /* New Download Button Style */
+        #install-btn { display: none; margin-top: 20px; background: #222; border: 1px solid var(--gold); color: var(--gold); }
     </style>
 </head>
 <body>
@@ -78,6 +86,8 @@
             <button onclick="publicAddItem('ImportantLinks', this)" class="btn-skip" style="font-size:0.6rem; flex:1;">+ LINK</button>
         </div>
     </div>
+
+    <button id="install-btn" class="btn-gold">📥 DOWNLOAD APP</button>
 
     <div id="secret-overlay" class="overlay">
         <div id="settings-menu-main">
@@ -130,6 +140,35 @@
 </div>
 
 <script>
+    // --- PWA & INSTALL BUTTON LOGIC ---
+    let deferredPrompt;
+    const installBtn = document.getElementById('install-btn');
+
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('sw.js').catch(err => console.log('SW failed', err));
+        });
+    }
+
+    // Capture the install event
+    window.addEventListener('beforeinstallprompt', (e) => {
+        e.preventDefault(); // Stop the automatic popup
+        deferredPrompt = e; // Save event for later
+        installBtn.style.display = 'block'; // Show our custom button instead
+    });
+
+    installBtn.addEventListener('click', async () => {
+        if (deferredPrompt) {
+            deferredPrompt.prompt(); // Show official browser popup
+            const { outcome } = await deferredPrompt.userChoice;
+            if (outcome === 'accepted') {
+                installBtn.style.display = 'none';
+            }
+            deferredPrompt = null;
+        }
+    });
+
+    // --- MAIN APP LOGIC ---
     const supabaseUrl = 'https://jlqqqriobwcxmoapmhze.supabase.co';
     const supabaseKey = 'sb_publishable_ODRaIqpK-ZwJnsIqdsPkxA_n8ip5SEa';
     const _supabase = supabase.createClient(supabaseUrl, supabaseKey);
@@ -183,7 +222,6 @@
         selects.forEach(s => s.innerHTML = opts);
     }
 
-    // Hold to open secret
     const trigger = document.getElementById('secret-trigger');
     const startHold = (e) => { e.preventDefault(); pressTimer = setTimeout(() => { document.getElementById('secret-overlay').style.display = 'block'; }, 2000); };
     const cancelHold = () => clearTimeout(pressTimer);
@@ -192,7 +230,6 @@
     trigger.addEventListener('mouseup', cancelHold);
     trigger.addEventListener('touchend', cancelHold);
 
-    // Settings Menu Logic
     function showForm(mode) {
         activeMode = mode;
         document.getElementById('settings-menu-main').style.display = 'none';
@@ -220,16 +257,13 @@
         const oldP = document.getElementById('old-pin-verify').value;
         const user = allRoommates.find(r => r.id == id);
         if (!user || oldP !== user.password) return alert("Verification Failed");
-
         let up = {};
         if (activeMode === 'name') up.name = document.getElementById('new-display-name').value;
         if (activeMode === 'pin') up.password = document.getElementById('new-pin-val').value;
-        
         await _supabase.from('Roommate').update(up).eq('id', id);
         alert("Updated!"); closeOverlays(); loadData();
     }
 
-    // Core Actions
     async function handleAction(type) {
         const current = allRoommates.find(r => r.is_current);
         const pin = prompt(`PIN for ${current.name}:`);
