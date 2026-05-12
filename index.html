@@ -10,303 +10,244 @@
         :root { --gold: #d4af37; --bg: #0a0a0a; --card: #1a1a1a; --text: #ffffff; }
         body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); display: flex; justify-content: center; padding: 20px; margin: 0; min-height: 100vh; }
         .container { width: 100%; max-width: 400px; background: var(--card); padding: 20px; border-radius: 12px; border: 1px solid #333; position: relative; height: fit-content; }
+        
+        /* Your Existing Styles */
         .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
         #menu-btn { background: #222; border: 1px solid #444; padding: 5px 10px; border-radius: 5px; cursor: pointer; font-size: 1.2rem; }
-        h1 { font-size: 1.1rem; color: var(--gold); margin: 0; letter-spacing: 1px; user-select: none; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+        h1 { font-size: 1.1rem; color: var(--gold); margin: 0; letter-spacing: 1px; }
+        .duty-card { background: #222; padding: 20px; border-radius: 10px; text-align: center; margin-bottom: 20px; border-left: 4px solid var(--gold); }
+        .duty-label { font-size: 0.8rem; color: #888; text-transform: uppercase; }
+        .duty-name { font-size: 1.8rem; font-weight: bold; margin: 10px 0; color: var(--gold); }
+        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
+        .stat-box { background: #222; padding: 15px; border-radius: 8px; text-align: center; }
+        .stat-val { display: block; font-size: 1.2rem; font-weight: bold; color: var(--gold); }
+        .btn-group { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .btn { background: var(--gold); color: black; border: none; padding: 12px; border-radius: 6px; font-weight: bold; cursor: pointer; width: 100%; }
+        .btn-outline { background: transparent; border: 1px solid var(--gold); color: var(--gold); }
         
-        .duty-card { background: #222; padding: 20px; border-radius: 10px; text-align: center; border: 1px solid var(--gold); margin-bottom: 15px; }
-        .officer-name { font-size: 1.8rem; font-weight: bold; display: block; margin: 5px 0; color: #fff; }
-        .btn-gold { background: var(--gold); color: #000; border: none; padding: 12px; width: 100%; border-radius: 5px; font-weight: bold; cursor: pointer; }
-        .btn-skip { background: #333; color: #fff; border: 1px solid #444; padding: 12px; width: 100%; border-radius: 5px; font-weight: bold; cursor: pointer; }
-        
-        .section-box { background: #111; padding: 15px; border-radius: 8px; margin-top: 10px; border: 1px dashed #444; text-align: left; }
-        .section-title { font-size: 0.65rem; color: var(--gold); margin: 0 0 10px 0; font-weight: bold; text-transform: uppercase; }
-        
-        select, .input-box { width: 100%; padding: 10px; margin-bottom: 8px; background: #222; color: #fff; border: 1px solid #444; border-radius: 5px; box-sizing: border-box; font-size: 0.8rem; }
-        
-        ul { list-style: none; padding: 0; margin: 0; }
-        li { display: flex; justify-content: space-between; padding: 12px; border-bottom: 1px solid #222; font-size: 0.9rem; align-items: center; }
-        .active-row { color: var(--gold); font-weight: bold; background: rgba(212, 175, 55, 0.05); border-left: 3px solid var(--gold); }
-        .points-badge { background: var(--gold); color: #000; padding: 2px 8px; border-radius: 10px; font-weight: bold; font-size: 0.75rem; }
+        /* POPUP OVERLAY STYLES */
+        .overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 1000; padding: 20px; box-sizing: border-box; }
+        .overlay-content { background: var(--card); border: 1px solid var(--gold); padding: 20px; border-radius: 12px; max-height: 80vh; overflow-y: auto; position: relative; top: 50%; transform: translateY(-50%); }
+        .close-btn { position: absolute; right: 15px; top: 10px; font-size: 1.5rem; cursor: pointer; color: var(--gold); }
+        .item-card { background: #222; padding: 10px; margin-bottom: 10px; border-radius: 6px; border-left: 3px solid var(--gold); }
+        .item-header { display: flex; justify-content: space-between; align-items: center; }
+        .item-link { color: var(--gold); text-decoration: none; font-size: 0.8rem; border: 1px solid var(--gold); padding: 2px 8px; border-radius: 4px; }
 
-        .overlay { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 95%; max-width: 380px; height: 85vh; background: var(--card); border-radius: 12px; z-index: 100; padding: 20px; box-sizing: border-box; overflow-y: auto; border: 1px solid #333; box-shadow: 0 0 30px rgba(0,0,0,0.9); }
-        
-        .menu-list-btn { background: #222; border: 1px solid #444; color: white; padding: 15px; width: 100%; text-align: left; margin-bottom: 10px; border-radius: 8px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; }
-        .back-btn { background: none; border: none; color: var(--gold); cursor: pointer; font-size: 0.8rem; margin-bottom: 15px; padding: 0; text-decoration: underline; }
-
-        .item-card { display: flex; flex-direction: column; padding: 12px; background: #222; margin-bottom: 8px; border-radius: 8px; border-left: 3px solid var(--gold); }
-        .item-header { display: flex; justify-content: space-between; align-items: center; width: 100%; }
-        .item-link { color: var(--gold); text-decoration: none; font-weight: bold; font-size: 0.8rem; border: 1px solid var(--gold); padding: 4px 8px; border-radius: 4px; }
-        
-        .fab-container { position: fixed; bottom: 20px; right: 20px; display: flex; flex-direction: column; gap: 10px; z-index: 90; }
-        .fab { background: var(--gold); color: #000; width: 55px; height: 55px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; cursor: pointer; border: none; }
+        /* INSTALL INSTRUCTIONS STYLE */
+        #install-instructions { z-index: 2000; }
+        .instruction-box { text-align: left; background: #222; padding: 15px; border-radius: 8px; margin: 15px 0; font-size: 0.9rem; border: 0.5px solid #444; }
     </style>
 </head>
 <body>
 
 <div class="container">
     <div class="header">
-        <button id="menu-btn" onclick="openHistory()">📜</button>
-        <h1 id="secret-trigger">WATER SYSTEM</h1>
+        <h1>WATER SYSTEM</h1>
+        <div id="menu-btn" onclick="toggleMenu()">☰</div>
+    </div>
+
+    <div id="menu-dropdown" style="display:none; position:absolute; right:20px; top:60px; background:#222; border:1px solid #444; border-radius:8px; z-index:100; width:150px;">
+        <div style="padding:12px; border-bottom:1px solid #333; cursor:pointer;" onclick="openHistory()">📜 History</div>
+        <div style="padding:12px; border-bottom:1px solid #333; cursor:pointer;" onclick="openMovies()">🎬 Movies</div>
+        <div style="padding:12px; border-bottom:1px solid #333; cursor:pointer;" onclick="openImportant()">🏷️ Important</div>
+        <div id="install-btn" style="padding:12px; color:var(--gold); cursor:pointer;">📥 Download App</div>
     </div>
 
     <div class="duty-card">
-        <p style="font-size: 0.7rem; color: #888; margin: 0;">ON DUTY</p>
-        <span id="officer-name" class="officer-name">...</span>
-        <div style="display: flex; gap: 10px; margin-top: 15px;">
-            <button onclick="handleAction('SKIPPED')" class="btn-skip" style="width: 100%;">SKIP</button>
-            <button onclick="handleAction('REFILLED')" class="btn-gold" style="width: 100%;">REFILLED</button>
-        </div>
-        
-        <div class="section-box">
-            <p class="section-title">Claim Credit (Off-Turn)</p>
-            <select class="user-dropdown"><option value="">Select Name</option></select>
-            <input type="password" class="user-pin input-box" placeholder="Your PIN">
-            <button onclick="submitClaim(this)" class="btn-gold" style="padding: 8px; font-size: 0.7rem;">ADD POINT</button>
+        <div class="duty-label">Currently On Duty</div>
+        <div id="on-duty-name" class="duty-name">Loading...</div>
+        <div class="btn-group">
+            <button class="btn" onclick="handleAction()">Refilled</button>
+            <button class="btn btn-outline" onclick="openClaimPopup()">Claim Credit</button>
         </div>
     </div>
 
-    <ul id="queue-list"></ul>
-
-    <div class="section-box" style="margin-top:20px;">
-        <p class="section-title">Public Add Content</p>
-        <select class="user-dropdown"><option value="">Select Name</option></select>
-        <input type="password" class="user-pin input-box" placeholder="Your PIN">
-        <input type="text" id="new-title" class="input-box" placeholder="Title">
-        <input type="text" id="new-url" class="input-box" placeholder="URL">
-        <div style="display: flex; gap: 5px;">
-            <button onclick="publicAddItem('Movies', this)" class="btn-skip" style="font-size:0.6rem; flex:1;">+ MOVIE</button>
-            <button onclick="publicAddItem('ImportantLinks', this)" class="btn-skip" style="font-size:0.6rem; flex:1;">+ LINK</button>
+    <div class="stats-grid" id="stats-container">
         </div>
-    </div>
+</div>
 
-    <div id="secret-overlay" class="overlay">
-        <div id="settings-menu-main">
-            <h3 style="color:var(--gold); font-size:0.9rem; text-align:center; margin-bottom: 20px;">SETTINGS MENU</h3>
-            <button class="menu-list-btn" onclick="showForm('name')">👤 Change Display Name <span>❯</span></button>
-            <button class="menu-list-btn" onclick="showForm('pin')">🔒 Change Security PIN <span>❯</span></button>
-            <button onclick="closeOverlays()" class="btn-gold" style="background:#333; color:#fff; margin-top:20px;">CLOSE</button>
-        </div>
-
-        <div id="form-container" style="display: none;">
-            <button class="back-btn" onclick="resetSettingsView()">❮ Back to Menu</button>
-            <h3 id="form-title" style="color:var(--gold); font-size:0.9rem; margin-top: 0;"></h3>
-            <div class="section-box">
-                <select id="update-user-select" class="user-dropdown" onchange="prefillCurrentName()"></select>
-                <div id="name-fields" style="display: none;">
-                    <input type="text" id="new-display-name" class="input-box" placeholder="New display name">
-                </div>
-                <div id="pin-fields" style="display: none;">
-                    <input type="password" id="new-pin-val" class="input-box" placeholder="New 4-digit PIN">
-                </div>
-                <hr style="border: 0; border-top: 1px solid #333; margin: 15px 0;">
-                <input type="password" id="old-pin-verify" class="input-box" placeholder="Verify Current PIN">
-                <button onclick="executeInfoUpdate()" class="btn-gold">SAVE CHANGES</button>
-            </div>
-        </div>
-    </div>
-
-    <div id="history-overlay" class="overlay">
-        <h3 style="color:var(--gold); font-size:0.9rem; text-align:center;">📜 HISTORY</h3>
+<div id="history-overlay" class="overlay">
+    <div class="overlay-content">
+        <span class="close-btn" onclick="closeOverlays()">&times;</span>
+        <h2 style="color:var(--gold)">Recent History</h2>
         <div id="content-log"></div>
-        <button onclick="closeOverlays()" class="btn-gold" style="background:#333; color:#fff; margin-top:20px;">CLOSE</button>
-    </div>
-
-    <div id="movie-overlay" class="overlay">
-        <h3 style="color:var(--gold); font-size:0.9rem; text-align:center;">🎬 MOVIES</h3>
-        <div id="content-movies"></div>
-        <button onclick="closeOverlays()" class="btn-gold" style="background:#333; color:#fff; margin-top:20px;">CLOSE</button>
-    </div>
-
-    <div id="important-overlay" class="overlay">
-        <h3 style="color:var(--gold); font-size:0.9rem; text-align:center;">🏷️ LINKS</h3>
-        <div id="content-important"></div>
-        <button onclick="closeOverlays()" class="btn-gold" style="background:#333; color:#fff; margin-top:20px;">CLOSE</button>
     </div>
 </div>
 
-<div class="fab-container">
-    <button id="download-fab" class="fab" style="display:none;" onclick="triggerInstall()">📥</button>
-    <button class="fab" onclick="openImportant()">🏷️</button>
-    <button class="fab" onclick="openMovies()">🎬</button>
+<div id="movie-overlay" class="overlay">
+    <div class="overlay-content">
+        <span class="close-btn" onclick="closeOverlays()">&times;</span>
+        <h2 style="color:var(--gold)">Movies</h2>
+        <div id="content-movies"></div>
+    </div>
+</div>
+
+<div id="important-overlay" class="overlay">
+    <div class="overlay-content">
+        <span class="close-btn" onclick="closeOverlays()">&times;</span>
+        <h2 style="color:var(--gold)">Links</h2>
+        <div id="content-important"></div>
+    </div>
+</div>
+
+<div id="claim-overlay" class="overlay">
+    <div class="overlay-content">
+        <h3 id="claim-title" style="color:var(--gold)">Verify PIN</h3>
+        <input type="password" id="pin-input" placeholder="Enter PIN" style="width:100%; padding:10px; margin:10px 0; background:#222; border:1px solid #444; color:white; text-align:center; font-size:1.2rem;">
+        <div class="btn-group">
+            <button class="btn btn-outline" onclick="closeOverlays()">Cancel</button>
+            <button class="btn" onclick="submitClaim()">Verify</button>
+        </div>
+    </div>
+</div>
+
+<div id="install-instructions" class="overlay" onclick="this.style.display='none'">
+    <div class="overlay-content" onclick="event.stopPropagation()">
+        <h2 style="color: var(--gold);">Install Web App</h2>
+        <p>Follow these steps to add this to your home screen:</p>
+        <div class="instruction-box">
+            <p><b>Android (Chrome):</b> Tap the 3 dots (⋮) and select "Install App" or "Add to Home screen".</p>
+            <hr style="border: 0.1px solid #444;">
+            <p><b>iPhone (Safari):</b> Tap the Share button (square icon with up arrow) and select "Add to Home Screen".</p>
+        </div>
+        <button class="btn" onclick="document.getElementById('install-instructions').style.display='none'">Got it!</button>
+    </div>
 </div>
 
 <script>
-    const supabaseUrl = 'https://jlqqqriobwcxmoapmhze.supabase.co';
-    const supabaseKey = 'sb_publishable_ODRaIqpK-ZwJnsIqdsPkxA_n8ip5SEa';
-    const _supabase = supabase.createClient(supabaseUrl, supabaseKey);
+    // --- SUPABASE CONFIG ---
+    const _supabase = supabase.createClient('YOUR_SUPABASE_URL', 'YOUR_SUPABASE_KEY');
 
-    let allRoommates = [];
-    let pressTimer;
-    let activeMode = '';
-    let deferredPrompt;
+    let currentDutyIndex = 0;
+    let members = [];
+    let pendingClaimant = null;
 
-    function formatDT(isoStr) {
-        if (!isoStr) return "";
-        const d = new Date(isoStr);
-        return d.toLocaleDateString([], { day: '2-digit', month: 'short' }) + ' ' + d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    // --- INITIALIZATION ---
+    window.onload = async () => {
+        const { data: config } = await _supabase.from('Config').select('*').single();
+        currentDutyIndex = config.current_duty_index;
+        
+        const { data: mData } = await _supabase.from('Members').select('*').order('id');
+        members = mData;
+        
+        updateUI();
+    };
+
+    function updateUI() {
+        document.getElementById('on-duty-name').innerText = members[currentDutyIndex].name;
+        document.getElementById('stats-container').innerHTML = members.map(m => `
+            <div class="stat-box">
+                <span class="duty-label">${m.name}</span>
+                <span class="stat-val">${m.points}</span>
+            </div>
+        `).join('');
     }
 
+    // --- CORE LOGIC: 18-HOUR COOLDOWN ---
     async function checkDailyLimit() {
-        const { data } = await _supabase.from('History')
+        const eighteenHoursAgo = new Date(Date.now() - 18 * 60 * 60 * 1000).toISOString();
+        const { data } = await _supabase
+            .from('History')
             .select('created_at')
-            .or('action.eq.REFILLED,action.eq.REFILLED (OFF-TURN)')
-            .order('created_at', { ascending: false }).limit(1);
+            .or(`action.eq.REFILLED,action.eq.REFILLED (OFF-TURN)`)
+            .gt('created_at', eighteenHoursAgo)
+            .order('created_at', { ascending: false })
+            .limit(1);
+
         if (data && data.length > 0) {
-            const diff = new Date().getTime() - new Date(data[0].created_at).getTime();
-            if (diff < 64800000) {
-                const h = Math.floor((64800000 - diff) / 3600000);
-                const m = Math.floor(((64800000 - diff) % 3600000) / 60000);
-                alert(`Limit reached! Next credit in ${h}h ${m}m.`);
-                return false;
-            }
+            const lastRefill = new Date(data[0].created_at);
+            const nextAvailable = new Date(lastRefill.getTime() + 18 * 60 * 60 * 1000);
+            const diff = nextAvailable - Date.now();
+            const hours = Math.floor(diff / (1000 * 60 * 60));
+            const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+            alert(`Locked! Next refill available in: ${hours}h ${mins}m`);
+            return false;
         }
         return true;
     }
 
-    async function init() { 
-        await loadData();
-        registerServiceWorker();
-    }
+    // --- ACTIONS ---
+    window.handleAction = async () => {
+        pendingClaimant = members[currentDutyIndex];
+        document.getElementById('claim-title').innerText = `Verify PIN: ${pendingClaimant.name}`;
+        document.getElementById('claim-overlay').style.display = 'block';
+    };
 
-    async function loadData() {
-        const { data } = await _supabase.from('Roommate').select('*').order('queue_order', { ascending: true });
-        if (data) { allRoommates = data; renderUI(); updateDropdowns(); }
-    }
+    window.openClaimPopup = () => {
+        pendingClaimant = null;
+        document.getElementById('claim-title').innerText = "Select Your Name";
+        const buttons = members.map(m => `<button class="btn btn-outline" style="margin-bottom:5px;" onclick="setClaimant(${m.id})">${m.name}</button>`).join('');
+        document.getElementById('claim-overlay').style.display = 'block';
+        document.getElementById('pin-input').insertAdjacentHTML('beforebegin', `<div id="name-selector">${buttons}</div>`);
+        document.getElementById('pin-input').style.display = 'none';
+    };
 
-    function renderUI() {
-        const current = allRoommates.find(r => r.is_current);
-        document.getElementById('officer-name').innerText = current ? current.name : "None";
-        document.getElementById('queue-list').innerHTML = allRoommates.map(r => `
-            <li class="${r.is_current ? 'active-row' : ''}">
-                <span>${r.name}</span>
-                <span class="points-badge">${r.points || 0} PTS</span>
-            </li>`).join('');
-    }
+    window.setClaimant = (id) => {
+        pendingClaimant = members.find(m => m.id === id);
+        document.getElementById('name-selector').remove();
+        document.getElementById('pin-input').style.display = 'block';
+        document.getElementById('claim-title').innerText = `Verify PIN: ${pendingClaimant.name}`;
+    };
 
-    function updateDropdowns() {
-        const selects = document.querySelectorAll('.user-dropdown');
-        const opts = '<option value="">Select User</option>' + allRoommates.map(r => `<option value="${r.id}">${r.name}</option>`).join('');
-        selects.forEach(s => s.innerHTML = opts);
-    }
+    window.submitClaim = async () => {
+        const pin = document.getElementById('pin-input').value;
+        if (pin !== pendingClaimant.pin) return alert("Wrong PIN!");
 
-    // PWA: Download/Install Handling
+        // Enforce Cooldown
+        const canProceed = await checkDailyLimit();
+        if (!canProceed) return;
+
+        const isOffTurn = pendingClaimant.id !== members[currentDutyIndex].id;
+        const actionType = isOffTurn ? "REFILLED (OFF-TURN)" : "REFILLED";
+
+        // Update DB
+        await _supabase.from('Members').update({ points: pendingClaimant.points + 1 }).eq('id', pendingClaimant.id);
+        await _supabase.from('History').insert([{ name: pendingClaimant.name, action: actionType }]);
+
+        // Rotate Duty
+        let nextIndex = (currentDutyIndex + 1) % members.length;
+        await _supabase.from('Config').update({ current_duty_index: nextIndex }).eq('id', 1);
+
+        location.reload();
+    };
+
+    // --- PWA INSTALL POPUP LOGIC ---
+    let deferredPrompt;
+    const installBtn = document.getElementById('install-btn');
+
     window.addEventListener('beforeinstallprompt', (e) => {
         e.preventDefault();
         deferredPrompt = e;
-        // Show download FAB only if install is possible
-        document.getElementById('download-fab').style.display = 'flex';
     });
 
-    async function triggerInstall() {
-        if (!deferredPrompt) return;
-        deferredPrompt.prompt();
-        const { outcome } = await deferredPrompt.userChoice;
-        if (outcome === 'accepted') {
-            document.getElementById('download-fab').style.display = 'none';
+    installBtn.onclick = async () => {
+        toggleMenu(); // Close dropdown
+        if (deferredPrompt) {
+            deferredPrompt.prompt();
+            await deferredPrompt.userChoice;
+            deferredPrompt = null;
+        } else {
+            // Show manual instructions if browser prompt is unavailable
+            document.getElementById('install-instructions').style.display = 'block';
         }
-        deferredPrompt = null;
-    }
+    };
 
-    function registerServiceWorker() {
-        if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('/sw.js')
-                .then(() => console.log("Service Worker Active"))
-                .catch(err => console.log("SW Error:", err));
-        }
-    }
+    // --- UTILS ---
+    window.toggleMenu = () => {
+        const menu = document.getElementById('menu-dropdown');
+        menu.style.display = menu.style.display === 'none' ? 'block' : 'none';
+    };
 
-    const trigger = document.getElementById('secret-trigger');
-    const startHold = (e) => { e.preventDefault(); pressTimer = setTimeout(() => { document.getElementById('secret-overlay').style.display = 'block'; }, 2000); };
-    const cancelHold = () => clearTimeout(pressTimer);
-    trigger.addEventListener('mousedown', startHold);
-    trigger.addEventListener('touchstart', startHold);
-    trigger.addEventListener('mouseup', cancelHold);
-    trigger.addEventListener('touchend', cancelHold);
+    window.closeOverlays = () => { 
+        document.querySelectorAll('.overlay').forEach(o => o.style.display = 'none');
+        document.getElementById('pin-input').value = "";
+    };
 
-    function showForm(mode) {
-        activeMode = mode;
-        document.getElementById('settings-menu-main').style.display = 'none';
-        document.getElementById('form-container').style.display = 'block';
-        document.getElementById('name-fields').style.display = (mode === 'name') ? 'block' : 'none';
-        document.getElementById('pin-fields').style.display = (mode === 'pin') ? 'block' : 'none';
-        document.getElementById('form-title').innerText = (mode === 'name') ? 'Change Name' : 'Change PIN';
-    }
-
-    function resetSettingsView() {
-        document.getElementById('settings-menu-main').style.display = 'block';
-        document.getElementById('form-container').style.display = 'none';
-        document.getElementById('old-pin-verify').value = '';
-    }
-
-    function prefillCurrentName() {
-        if (activeMode !== 'name') return;
-        const id = document.getElementById('update-user-select').value;
-        const user = allRoommates.find(r => r.id == id);
-        if (user) document.getElementById('new-display-name').value = user.name;
-    }
-
-    async function executeInfoUpdate() {
-        const id = document.getElementById('update-user-select').value;
-        const oldP = document.getElementById('old-pin-verify').value;
-        const user = allRoommates.find(r => r.id == id);
-        if (!user || oldP !== user.password) return alert("Verification Failed");
-
-        let up = {};
-        if (activeMode === 'name') up.name = document.getElementById('new-display-name').value;
-        if (activeMode === 'pin') up.password = document.getElementById('new-pin-val').value;
-        
-        await _supabase.from('Roommate').update(up).eq('id', id);
-        alert("Updated!"); closeOverlays(); loadData();
-    }
-
-    async function handleAction(type) {
-        const current = allRoommates.find(r => r.is_current);
-        const pin = prompt(`PIN for ${current.name}:`);
-        if (pin !== current.password) return alert("Wrong PIN");
-        if (type === 'REFILLED' && !(await checkDailyLimit())) return;
-        
-        const next = allRoommates[(allRoommates.indexOf(current) + 1) % allRoommates.length];
-        await _supabase.from('History').insert([{ name: current.name, action: type }]);
-        if (type === 'REFILLED') await _supabase.from('Roommate').update({ points: (current.points || 0) + 1 }).eq('id', current.id);
-        await _supabase.from('Roommate').update({ is_current: false }).eq('id', current.id);
-        await _supabase.from('Roommate').update({ is_current: true }).eq('id', next.id);
-        loadData();
-    }
-
-    async function submitClaim(btn) {
-        const id = btn.parentElement.querySelector('.user-dropdown').value;
-        const pin = btn.parentElement.querySelector('.user-pin').value;
-        const user = allRoommates.find(r => r.id == id);
-        if (!user || pin !== user.password) return alert("Auth Failed");
-        if (!(await checkDailyLimit())) return;
-
-        const current = allRoommates.find(r => r.is_current);
-        const next = allRoommates[(allRoommates.indexOf(current) + 1) % allRoommates.length];
-        
-        await _supabase.from('Roommate').update({ points: (user.points || 0) + 1 }).eq('id', user.id);
-        await _supabase.from('History').insert([{ name: user.name, action: 'REFILLED (OFF-TURN)' }]);
-        await _supabase.from('Roommate').update({ is_current: false }).eq('id', current.id);
-        await _supabase.from('Roommate').update({ is_current: true }).eq('id', next.id);
-        loadData();
-    }
-
-    async function publicAddItem(table, btn) {
-        const id = btn.parentElement.parentElement.querySelector('.user-dropdown').value;
-        const pin = btn.parentElement.parentElement.querySelector('.user-pin').value;
-        const user = allRoommates.find(r => r.id == id);
-        if (!user || pin !== user.password) return alert("Auth Failed");
-        const title = document.getElementById('new-title').value;
-        const url = document.getElementById('new-url').value;
-        await _supabase.from(table).insert([{ title, url }]);
-        alert("Added!"); loadData();
-    }
-
-    async function openHistory() {
+    window.openHistory = async () => {
         document.getElementById('history-overlay').style.display = 'block';
         const { data } = await _supabase.from('History').select('*').order('created_at', { ascending: false }).limit(25);
-        document.getElementById('content-log').innerHTML = data.map(h => `<div class="item-card"><div class="item-header"><span>${h.name}</span><b>${h.action}</b></div><div style="font-size:0.6rem; color:#666;">${formatDT(h.created_at)}</div></div>`).join('');
-    }
+        document.getElementById('content-log').innerHTML = data.map(h => `<div class="item-card"><div class="item-header"><span>${h.name}</span><b>${h.action}</b></div><div style="font-size:0.6rem; color:#666;">${new Date(h.created_at).toLocaleString()}</div></div>`).join('');
+    };
 
     window.openMovies = async () => {
         document.getElementById('movie-overlay').style.display = 'block';
@@ -319,9 +260,8 @@
         const { data } = await _supabase.from('ImportantLinks').select('*').order('created_at', { ascending: false });
         document.getElementById('content-important').innerHTML = data.map(l => `<div class="item-card"><div class="item-header"><span>🏷️ ${l.title}</span><a href="${l.url}" target="_blank" class="item-link">OPEN</a></div></div>`).join('');
     };
-
-    window.closeOverlays = () => { document.querySelectorAll('.overlay').forEach(o => o.style.display = 'none'); resetSettingsView(); };
-    init();
 </script>
+
 </body>
-</html>
+                   </html>
+                   
