@@ -1,8 +1,7 @@
 const CACHE_NAME = 'water-system-v1';
 const ASSETS = [
-  '/',
-  '/index.html', // Change to your actual filename if different
-  '/manifest.json'
+  'index.html',
+  'manifest.json'
 ];
 
 // Install Service Worker
@@ -14,7 +13,7 @@ self.addEventListener('install', (e) => {
   );
 });
 
-// Fetching assets from cache
+// Fetch Assets
 self.addEventListener('fetch', (e) => {
   e.respondWith(
     caches.match(e.request).then((response) => {
