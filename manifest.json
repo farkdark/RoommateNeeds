@@ -1,19 +1,16 @@
 {
-  "name": "Water Credit App",
+  "name": "Water Credit System",
   "short_name": "WaterApp",
-  "description": "System to manage water refills",
   "start_url": "index.html",
   "display": "standalone",
   "background_color": "#0a0a0a",
   "theme_color": "#d4af37",
-"icons": [
-  {
-    "src": "icon-512.png",
-    "sizes": "512x512",
-    "type": "image/png",
-    "purpose": "maskable" 
-  }
-]
-
-  
+  "icons": [
+    {
+      "src": "image1.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
 }
